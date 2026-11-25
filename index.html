@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FBF8F3">
+<title>Mayara &amp; Lucas — nosso casamento</title>
+<meta name="description" content="O site do casamento de Mayara e Lucas: nossa história, o grande dia na praia e a confirmação de presença.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/img/favicon-180.png">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/vendor/fonts/inter-latin-300.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="assets/vendor/fonts/cormorant-garamond-latin.woff2">
+<link rel="stylesheet" href="assets/vendor/fonts.css">
+<link rel="stylesheet" href="assets/css/wd-tokens.css">
+<link rel="stylesheet" href="assets/css/wd-base.css">
+<link rel="stylesheet" href="assets/css/wd-components.css">
+<link rel="stylesheet" href="assets/css/site.css">
+<script src="assets/vendor/icons.js"></script>
+<script src="assets/vendor/iconify-icon-2.1.0.min.js"></script>
+<script src="assets/vendor/gsap-3.12.5.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger-3.12.5.min.js" defer></script>
+<script src="assets/vendor/lenis-1.0.42.min.js" defer></script>
+<script src="assets/js/wd-core.js" defer></script>
+<script src="assets/js/wd-motion.js" defer></script>
+<script src="assets/js/wd-intro.js" defer></script>
+<script src="assets/js/site.js" defer></script>
+</head>
+<body class="wd-is-opening">
+<noscript><style>#abertura{display:none}body.wd-is-opening #site-main,body.wd-is-opening #wd-nav{visibility:visible}</style></noscript>
+
+<!-- ============================================================ #abertura · preloader → envelope do convite
+     Fica fora do scroller (que é position:fixed) para cobrir também a navbar. Dispara o evento wd:open. -->
+<section id="abertura" class="wd-env" role="dialog" aria-modal="true" aria-labelledby="wd-loaderWord" aria-describedby="wd-env-desc">
+  <div class="wd-env-half wd-env-top" aria-hidden="true"></div>
+  <div class="wd-env-half wd-env-bot" aria-hidden="true"></div>
+  <svg class="wd-env-seam" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50 L50 58 L100 50"/></svg>
+
+  <div class="wd-env-stage">
+    <div class="wd-env-mono" aria-hidden="true">
+      <svg class="wd-env-sketch" viewBox="0 0 100 100">
+        <circle pathLength="1" cx="50" cy="50" r="46"/>
+        <circle pathLength="1" cx="50" cy="50" r="41" class="is-thin"/>
+        <path pathLength="1" d="M28 68V36l19 26 19-26v32"/>
+        <path pathLength="1" d="M51 26v46h21"/>
+        <path pathLength="1" class="is-gold" d="M16 74q8-7 16 0t16 0 16 0 16 0"/>
+      </svg>
+      <img class="wd-env-logo" src="assets/img/logo-ml-sea.png" alt="" width="104" height="104" decoding="async" fetchpriority="high">
+    </div>
+    <p id="wd-loaderWord">MAYARA &amp; LUCAS</p>
+    <div class="wd-env-load">
+      <div class="wd-loader-track"><div id="wd-loaderBar"></div></div>
+      <p id="wd-loaderPct" aria-live="polite">0%</p>
+    </div>
+
+    <div class="wd-env-seal" hidden>
+      <span class="wd-seal wd-seal-xl" aria-hidden="true">
+        <svg class="wd-seal-ring" viewBox="0 0 132 132"><defs><path id="wd-envSealPath" d="M66 66m-54 0a54 54 0 1 1 108 0a54 54 0 1 1-108 0"/></defs><text textLength="335" lengthAdjust="spacing"><textPath href="#wd-envSealPath">MAYARA &amp; LUCAS · 01.06.2027 · ABRA O CONVITE ·</textPath></text></svg>
+        <span class="wd-seal-disc"></span>
+        <img class="wd-seal-logo" src="assets/img/logo-ml-cream.png" alt="" width="72" height="72" decoding="async">
+      </span>
+      <p class="wd-t-eyebrow wd-env-date" id="wd-env-desc">01 · 06 · 2027 — um convite para você</p>
+      <div class="wd-env-actions">
+        <button type="button" class="btn-w wd-btn is-glow" data-anim="text-hover" id="wd-openBtn">
+          <span class="btn-inner"><span class="btn-inner-text-w"><span split-text class="btn-text">Abrir o convite</span></span>
+          <span class="wd-env-sound" aria-hidden="true"><svg class="wd-i" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path class="wd-wave" d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.5 7.5 0 0 1 0 10.4"/><path class="wd-mute" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></span></span>
+        </button>
+        <button type="button" class="btn-w wd-btn wd-btn--outline wd-btn--sm wd-env-alt" id="wd-openAlt"><span class="btn-inner"><svg class="wd-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path class="wd-ico-mute" d="M16 9.5l5 5M21 9.5l-5 5"/><path class="wd-ico-wave" d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.5 7.5 0 0 1 0 10.4"/></svg><span id="wd-openAltTxt">Entrar sem som</span></span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ confirmar presença fixo embaixo (só no mobile) -->
+<a href="#rsvp" data-wd-goto="rsvp" class="btn-w wd-btn wd-fab" id="wd-fab"><span class="btn-inner"><span class="btn-text">Confirmar presença</span><svg class="wd-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+
+<!-- ============================================================ música tema · player flutuante -->
+<audio id="wd-audio" src="assets/audio/tema.mp3" preload="auto" loop></audio>
+<button type="button" class="wd-player" id="wd-player" aria-pressed="false" aria-label="Tocar música" hidden>
+  <span class="wd-player-disc" aria-hidden="true"><img src="assets/img/logo-ml-sea.png" alt="" width="32" height="32" decoding="async"></span>
+  <span class="wd-player-ico" aria-hidden="true"><svg class="wd-i" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path class="wd-ico-wave" d="M15.5 9.2a4 4 0 0 1 0 5.6M18 6.8a7.5 7.5 0 0 1 0 10.4"/><path class="wd-ico-mute" d="M16 9.5l5 5M21 9.5l-5 5"/></svg></span>
+  <span class="wd-player-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  <span class="wd-player-label" aria-hidden="true"><b>Count on Me</b> · Bruno Mars</span>
+</button>
+
+<a class="wd-skip" href="#convite" data-wd-goto="convite">Pular para o conteúdo</a>
+
+<!-- camadas globais do design system -->
+<div id="wd-cursorLabel" aria-hidden="true"><span class="wd-cursor-label"></span></div>
+<div id="wd-cursor" aria-hidden="true"><svg viewBox="0 0 14 16"><path d="M7.04922 10.0199L2.88766 15.3407L0.408266 -0.000225568L13.5709 8.26022L7.04922 10.0199Z"/></svg></div>
+
+<!-- gradiente dourado (stroke da linha que se desenha) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs><linearGradient id="wd-gilt-stroke" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#907533" stop-opacity="0"/><stop offset=".18" stop-color="#907533"/>
+    <stop offset=".5" stop-color="#E3CC9A"/><stop offset=".82" stop-color="#B8975A"/><stop offset="1" stop-color="#B8975A" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="wd-gilt-soft" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#7A6229" stop-opacity="0"/><stop offset=".12" stop-color="#7A6229"/>
+    <stop offset=".5" stop-color="#B8975A"/><stop offset=".88" stop-color="#907533"/><stop offset="1" stop-color="#907533" stop-opacity="0"/>
+  </linearGradient></defs>
+</svg>
+
+<!-- navbar: transparente → vidro washi (.nav--scrolled, após 120 px) → noite (.nav--night, sobre seções escuras) -->
+<header id="wd-nav">
+  <div class="nav-shell">
+    <a href="#inicio" class="wd-brand nav-ink" data-wd-goto="inicio" aria-label="Mayara &amp; Lucas — início">
+      <img src="assets/img/logo-ml-sea.png" alt="" width="36" height="36" decoding="async">
+      <span>MAYARA &amp; LUCAS</span>
+    </a>
+    <nav class="wd-navlinks" aria-label="Seções do site">
+      <a href="#historia" class="u-link nav-ink" data-wd-goto="historia">Nossa história</a>
+      <a href="#cerimonia" class="u-link nav-ink" data-wd-goto="cerimonia">O grande dia</a>
+      <a href="#presentes" class="u-link nav-ink" data-wd-goto="presentes">Presentes</a>
+      <a href="#rsvp" class="u-link nav-ink" data-wd-goto="rsvp">RSVP</a>
+      <a href="#rsvp" data-wd-goto="rsvp" data-anim="text-hover" class="btn-w wd-nav-cta nav-ink nav-border"><span class="btn-inner"><span class="btn-inner-text-w"><span split-text class="btn-text">Confirmar presença</span></span></span></a>
+    </nav>
+    <button type="button" class="wd-menu-btn nav-ink" id="wd-menuBtn" data-anim="text-hover" aria-expanded="false" aria-controls="wd-mpanel" aria-label="Abrir menu">
+      <span class="btn-inner-text-w"><span split-text class="btn-text" id="wd-menuTxt">Menu</span></span>
+      <svg class="wd-i" viewBox="0 0 24 24" aria-hidden="true" style="width:20px;height:20px"><path id="wd-menuIc" d="M4 8L20 8M4 16L20 16"/></svg>
+    </button>
+  </div>
+</header>
+<nav class="wd-mpanel" id="wd-mpanel" aria-label="Menu" aria-hidden="true">
+  <a href="#historia" data-wd-goto="historia"><span>Nossa história</span></a>
+  <a href="#cerimonia" data-wd-goto="cerimonia"><span>O grande dia</span></a>
+  <a href="#presentes" data-wd-goto="presentes"><span>Presentes</span></a>
+  <a href="#rsvp" data-wd-goto="rsvp"><span>Confirmar presença</span></a>
+  <button type="button" class="wd-btn-line wd-mpanel-replay" data-wd-replay>Rever a abertura</button>
+  <p class="wd-t-eyebrow wd-mpanel-date">01 · 06 · 2027 · à beira-mar</p>
+</nav>
+
+<main id="site-main" data-wd-scroller tabindex="-1">
+<div id="site-scroller">
+
+  <!-- ============================================================ #inicio · hero (entra depois de wd:open) -->
+  <section id="inicio" class="wd-section is-paper" data-wd-bg="paper" aria-labelledby="wd-heroTitle">
+    <div class="wd-hero-stage">
+      <img class="wd-hero-plate" src="assets/img/juntos-praia.jpg"
+           srcset="assets/img/juntos-praia-362.webp 362w, assets/img/juntos-praia-724.webp 724w" sizes="(min-width:768px) 70vw, 100vw"
+           alt="Mayara e Lucas caminham de mãos dadas na água rasa da praia, sorrindo" width="724" height="508" decoding="async" fetchpriority="high">
+      <canvas id="wd-gl" aria-hidden="true"></canvas>
+      <div class="wd-hero-veil" aria-hidden="true"></div>
+      <div class="wd-ghost" aria-hidden="true" data-wd-ghost>M &amp; L</div>
+
+      <div class="wd-hero-content">
+        <div class="wd-hero-kicker"><div class="overflow-hidden"><p class="wd-t-eyebrow" data-wd-reveal="chars" data-wd-start="open" data-wd-delay=".25"><i></i>Com alegria, convidamos você</p></div></div>
+
+        <h1 class="wd-names" id="wd-heroTitle" data-wd-thread data-wd-reveal="hero" data-wd-start="open" data-wd-delay=".1" aria-label="Mayara &amp; Lucas">
+          <span class="wd-line" aria-hidden="true"><span><span class="wd-word" data-wd-name><span class="wd-stroke">Mayara</span><span class="wd-fill">Mayara</span></span></span></span>
+          <span class="wd-line" aria-hidden="true"><span><span class="wd-amp">&amp;</span></span></span>
+          <span class="wd-line" aria-hidden="true"><span><span class="wd-word" data-wd-name><span class="wd-stroke">Lucas</span><span class="wd-fill">Lucas</span></span></span></span>
+        </h1>
+
+        <aside class="wd-hero-side" aria-label="Data, contagem regressiva e local">
+          <p class="wd-hero-date" data-wd-reveal="words" data-wd-start="open" data-wd-delay=".9"><span class="wd-hero-rule" aria-hidden="true"></span>1º de junho de 2027</p>
+          <span class="wd-hero-div" aria-hidden="true" data-wd-reveal="fade" data-wd-start="open" data-wd-delay=".9"></span>
+          <p class="wd-cd" role="timer" aria-live="off" aria-label="Faltam para o casamento">
+            <span class="wd-cd-n" data-wd-cd="d" data-wd-reveal="count" data-wd-start="open" data-wd-delay=".9">0</span><span class="wd-cd-u">dias</span><i aria-hidden="true">·</i><span class="wd-cd-n" data-wd-cd="h" data-wd-reveal="count" data-wd-start="open" data-wd-delay=".9">00</span><span class="wd-cd-u">h</span><i aria-hidden="true">·</i><span class="wd-cd-n" data-wd-cd="m" data-wd-reveal="count" data-wd-start="open" data-wd-delay=".9">00</span><span class="wd-cd-u">min</span>
+          </p>
+          <span class="wd-hero-div" aria-hidden="true" data-wd-reveal="fade" data-wd-start="open" data-wd-delay=".9"></span>
+          <p class="wd-hero-place" data-wd-reveal="para" data-wd-start="open" data-wd-delay=".9"><svg class="wd-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.6 6-11a6 6 0 1 0-12 0c0 5.4 6 11 6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>18h · à beira-mar · local a anunciar</p>
+        </aside>
+
+        <div class="wd-hero-foot">
+          <div class="wd-hero-actions">
+            <a href="#rsvp" data-wd-goto="rsvp" data-anim="text-hover" class="btn-w wd-btn wd-hero-cta" data-wd-reveal="fade" data-wd-start="open" data-wd-delay=".9">
+              <span class="btn-inner"><span class="btn-inner-text-w"><span split-text class="btn-text">Confirmar presença</span></span>
+              <span class="btn-icon-w" aria-hidden="true"><iconify-icon class="is-cur" icon="solar:arrow-right-linear" width="18"></iconify-icon><iconify-icon class="is-next" icon="solar:arrow-right-linear" width="18"></iconify-icon></span></span>
+            </a>
+            <a href="#" class="wd-seal" id="wd-saveDate" data-wd-reveal="fade" data-wd-start="open" data-wd-delay="1" aria-label="Salve a data — baixar o convite para a agenda (.ics)">
+              <svg class="wd-seal-ring" viewBox="0 0 132 132" aria-hidden="true"><defs><path id="wd-heroSealPath" d="M66 66m-54 0a54 54 0 1 1 108 0a54 54 0 1 1-108 0"/></defs><text textLength="335" lengthAdjust="spacing"><textPath href="#wd-heroSealPath">SALVE A DATA · 01.06.2027 · MAYARA &amp; LUCAS ·</textPath></text></svg>
+              <span class="wd-seal-disc"></span>
+              <span class="wd-seal-in">Agenda<svg class="wd-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span>
+            </a>
+          </div>
+          <div class="wd-scrollcue" aria-hidden="true" data-wd-reveal="fade" data-wd-start="open" data-wd-delay="1.1"><span>ROLE</span><div><i></i></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ============================================================ #convite · três cenas de tela cheia (a foto é o palco) -->
+  <section id="convite" class="wd-section is-paper wd-sheet" data-wd-bg="paper" data-wd-sheet aria-labelledby="wd-s1Title">
+
+    <!-- Cena 1 · a janela que se abre (pin + scrub) -->
+    <div class="wd-scene wd-s1" data-wd-pin>
+      <div class="wd-scene-sticky">
+        <figure class="wd-s1-win" data-wd-onphoto>
+          <span class="wd-kb"><img class="wd-s1-img" data-wd-quality src="assets/img/correndo-praia.jpg" srcset="assets/img/correndo-praia-373.webp 373w, assets/img/correndo-praia-746.webp 746w" sizes="100vw" alt="Mayara e Lucas correm de mãos dadas pela areia molhada, com o mar e as pedras ao fundo" width="746" height="509" loading="lazy" decoding="async"></span>
+          <span class="wd-s1-scrim" aria-hidden="true"></span>
+        </figure>
+        <p class="wd-s1-eyebrow" data-wd-reveal="chars" data-wd-scrub data-wd-trigger=".wd-s1" data-wd-range="0.22 0.40">— 01 · O convite</p>
+        <h2 class="wd-s1-title" id="wd-s1Title" data-wd-thread data-wd-skew data-wd-reveal="lit" data-wd-scrub data-wd-trigger=".wd-s1" data-wd-range="0.24 0.80">Depois de tantos <em data-gold>pores do sol</em> juntos,</h2>
+      </div>
+    </div>
+
+    <div class="wd-interlude" aria-hidden="true"><canvas data-wd-petals="7"></canvas></div>
+
+    <!-- Cena 2 · mãos: “juntos” atravessa a foto -->
+    <div class="wd-scene wd-s2">
+      <figure class="wd-s2-photo" data-wd-reveal="image" data-wd-parallax="none">
+        <span class="wd-s2-par"><span class="wd-kb"><img data-wd-quality src="assets/img/maos.jpg" srcset="assets/img/maos-358.webp 358w, assets/img/maos-716.webp 716w" sizes="(max-width:767px) 100vw, 62vw" alt="Duas mãos quase se tocando diante do mar; na mão dela, o anel de noivado" width="716" height="509" loading="lazy" decoding="async"></span></span>
+      </figure>
+      <p class="wd-s2-word" aria-hidden="true" data-wd-reveal="fade" data-wd-trigger=".wd-s2" data-wd-start="top 70%" data-wd-delay=".4">
+        <span class="wd-s2-layer is-out"><span class="wd-s2-w">juntos</span></span>
+        <span class="wd-s2-layer is-in"><span class="wd-s2-w">juntos</span></span>
+      </p>
+      <h3 class="wd-t-h2 wd-s2-text" data-wd-thread data-wd-reveal="lines"><span class="wd-sr">juntos — </span>decidimos transformar o nosso <em>para sempre</em> em um dia</h3>
+    </div>
+
+    <div class="wd-interlude" aria-hidden="true"><canvas data-wd-petals="7"></canvas></div>
+
+    <!-- Cena 3 · você: a foto emoldurada como uma fotografia impressa -->
+    <div class="wd-scene wd-s3" data-wd-onphoto>
+      <div class="wd-s3-photo" data-parallax="wrapper">
+        <div data-parallax="inner" data-wd-speed=".8"><span class="wd-kb"><img data-wd-quality src="assets/img/abracados.jpg" srcset="assets/img/abracados-301.webp 301w, assets/img/abracados-602.webp 602w" sizes="100vw" alt="Mayara e Lucas abraçados à beira-mar, vestidos de branco, sorrindo para a câmera" width="602" height="508" loading="lazy" decoding="async"></span></div>
+      </div>
+      <span class="wd-s3-scrim" aria-hidden="true"></span>
+      <span class="wd-s3-frame" aria-hidden="true"></span>
+      <div class="wd-s3-content">
+        <p class="wd-s3-title" data-wd-thread data-wd-reveal="lines" data-wd-start="top 75%">— e queremos<br><em>você</em> lá.</p>
+        <div class="wd-s3-veil">
+          <p class="wd-s3-date" data-wd-reveal="chars" data-wd-delay=".5">1º de junho de 2027 · ao entardecer</p>
+          <p class="wd-t-lead" data-wd-reveal="para" data-wd-delay=".5">Vamos dizer sim à beira-mar, cercados das pessoas que fizeram parte da nossa história até aqui. Prepare o coração — e os pés descalços: vai ser uma celebração leve, cheia de luz, de abraços e de brisa do mar.</p>
+          <a href="#cerimonia" data-wd-goto="cerimonia" class="wd-btn-line wd-s3-link" data-wd-reveal="fade" data-wd-delay=".5">Ver o grande dia<svg class="wd-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </div>
+    <!-- statement · acende palavra por palavra -->
+    <div class="wd-statement-wrap">
+      <div class="wd-bg" aria-hidden="true"><span class="wd-orb wd-orb--gold" style="width:520px;height:520px;top:-10%;right:-8%"></span><span class="wd-orb wd-orb--sea" style="width:380px;height:380px;bottom:-12%;left:-6%"></span></div>
+      <p class="wd-statement" data-wd-thread data-wd-reveal="lit" data-wd-scrub data-wd-start="top 80%" data-wd-end="center 45%">Pés na areia,<br> coração<br> no <span data-gold>mar,</span><br> dizemos <span data-gold>sim.</span></p>
+    </div>
+  </section>
+  <section id="historia" class="wd-section" data-wd-bg="washi" aria-label="Nossa história"></section>
+  <section id="contagem" class="wd-section" data-wd-bg="paper" aria-label="Contagem regressiva"></section>
+  <section id="cerimonia" class="wd-section" data-wd-bg="paper" data-wd-sheet aria-label="Cerimônia"></section>
+  <section id="festa" class="wd-section is-night" data-wd-bg="night" aria-labelledby="wd-festaTitle">
+    <div class="wd-bg" aria-hidden="true"><div class="wd-stars" data-wd-stars></div><span class="wd-night-glow"></span><canvas data-wd-petals="6" data-wd-tint="lantern"></canvas></div>
+    <div class="wd-festa">
+      <p class="wd-t-eyebrow" data-wd-reveal="chars"><i></i>A festa</p>
+      <h2 class="wd-festa-title" id="wd-festaTitle" data-wd-thread data-wd-reveal="lines">Depois do sim, <em>a noite é nossa</em></h2>
+      <p class="wd-t-lead" data-wd-reveal="para">Quando o sol se puser, a areia vira pista: luzes acesas, mesa farta e música até tarde. Venha leve — e, se quiser, com os pés descalços.</p>
+    </div>
+  </section>
+  <section id="galeria" class="wd-section" data-wd-bg="washi" aria-label="Galeria"></section>
+  <section id="presentes" class="wd-section" data-wd-bg="paper" aria-label="Lista de presentes"></section>
+  <section id="rsvp" class="wd-section" data-wd-bg="paper" data-wd-sheet aria-label="Confirmar presença"></section>
+  <footer id="rodape" class="wd-section is-night" data-wd-bg="night" aria-label="Rodapé">
+    <div class="wd-rodape">
+      <img src="assets/img/logo-ml-cream.png" alt="" width="56" height="56" loading="lazy" decoding="async">
+      <p class="wd-rodape-names">Mayara <em>&amp;</em> Lucas</p>
+      <p class="wd-t-eyebrow wd-eyebrow-line">01 · 06 · 2027 · à beira-mar</p>
+      <button type="button" class="wd-btn-line wd-rodape-replay" data-wd-replay>Rever a abertura</button>
+    </div>
+    <div class="wd-ghost wd-ghost--foot" aria-hidden="true" data-wd-ghost>M &amp; L</div>
+  </footer>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,692 @@
+/* site.css — somente o que for específico do site do casamento.
+   Base visual: wd-tokens.css → wd-base.css → wd-components.css (extraídos de assets/design_system.html).
+   Classes novas só aqui e sempre com o prefixo wd-. */
+
+/* =====================================================================================================
+   #abertura · preloader que vira envelope (preloader #wd-loader + .wd-seal do design system)
+   ===================================================================================================== */
+body.wd-is-opening #site-main,body.wd-is-opening #wd-nav{visibility:hidden}
+.wd-env{position:fixed;inset:0;z-index:110;display:grid;place-items:center;overflow:hidden;color:var(--wd-ink)}
+.wd-env.is-gone{display:none}
+/* duas metades de papel; a costura em V é a aba do envelope */
+.wd-env-half{position:absolute;inset:0;background:var(--wd-washi);transition:clip-path .9s var(--wd-ease-inout)}
+.wd-env-half::after{content:'';position:absolute;inset:0;background:var(--wd-vignette)}
+.wd-env-top{z-index:2;clip-path:polygon(0 0,100% 0,100% 50%,50% 58%,0 50%);background:linear-gradient(180deg,var(--wd-washi) 0%,var(--wd-foam) 100%)}
+.wd-env-bot{z-index:1;clip-path:polygon(0 50%,50% 58%,100% 50%,100% 100%,0 100%);background:linear-gradient(180deg,var(--wd-washi-warm) 0%,var(--wd-washi) 100%)}
+.wd-env.is-open .wd-env-top{clip-path:polygon(0 0,100% 0,100% 0,50% 0,0 0)}
+.wd-env.is-open .wd-env-bot{clip-path:polygon(0 100%,50% 100%,100% 100%,100% 100%,0 100%)}
+.wd-env-seam{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;opacity:0;transition:opacity var(--wd-dur-base) var(--wd-ease-out)}
+.wd-env-seam path{fill:none;stroke:var(--wd-line-gold);stroke-width:1;vector-effect:non-scaling-stroke}
+.wd-env.is-ready .wd-env-seam{opacity:1}
+.wd-env.is-open .wd-env-seam{opacity:0;transition-duration:.3s}
+/* palco central */
+.wd-env-stage{position:relative;z-index:4;display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px;transition:opacity .45s var(--wd-ease-out),transform .9s var(--wd-ease-inout)}
+.wd-env.is-open .wd-env-stage{opacity:0;transform:scale(.96);pointer-events:none}
+.wd-env-mono{position:relative;width:104px;height:104px;margin-bottom:18px}
+.wd-env-sketch{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.wd-env-sketch circle,.wd-env-sketch path{fill:none;stroke:var(--wd-sea);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.wd-env-sketch .is-thin{stroke-width:.6;stroke-opacity:.6}
+.wd-env-sketch .is-gold{stroke:var(--wd-champagne)}
+.wd-env-logo{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity var(--wd-dur-slow) var(--wd-ease-out)}
+.wd-env.is-drawn .wd-env-logo{opacity:1}
+.wd-env.is-drawn .wd-env-sketch{opacity:0;transition:opacity var(--wd-dur-slow) var(--wd-ease-out)}
+#abertura #wd-loaderWord{margin:0 -.5em 0 0;font-size:clamp(1.9rem,6vw,3rem)}
+.wd-env-load{display:flex;flex-direction:column;align-items:center;transition:opacity var(--wd-dur-fast) var(--wd-ease-out)}
+.wd-env.is-ready .wd-env-load{opacity:0;height:0;overflow:hidden}
+/* selo, data e ações */
+.wd-env-seal{display:flex;flex-direction:column;align-items:center;gap:22px;margin-top:26px}
+.wd-env-seal[hidden]{display:none}
+.wd-seal-xl{width:168px;height:168px;border-radius:50%;animation:wd-halo var(--wd-dur-ambient) ease-in-out infinite}
+.wd-seal-xl .wd-seal-disc{inset:20px;background:var(--wd-sea)}
+.wd-seal-xl:hover .wd-seal-disc{background:var(--wd-sea);transform:scale(1.05)}
+.wd-seal-xl .wd-seal-ring{color:var(--wd-sea)}
+.wd-seal-xl .wd-seal-ring text{font-size:8.2px;letter-spacing:0}
+.wd-seal-logo{position:relative;width:76px;height:76px;transition:transform var(--wd-dur-base) var(--wd-ease-out)}
+.wd-seal-xl:hover .wd-seal-logo{transform:scale(1.06) rotate(-4deg)}
+.wd-env-seal>*{opacity:0;transform:translateY(14px);transition:opacity var(--wd-dur-slow) var(--wd-ease-out),transform var(--wd-dur-slow) var(--wd-ease-out)}
+.wd-env.is-ready .wd-env-seal>*{opacity:1;transform:none}
+.wd-env.is-ready .wd-env-seal>:nth-child(2){transition-delay:.12s}
+.wd-env.is-ready .wd-env-seal>:nth-child(3){transition-delay:.24s}
+.wd-env.is-ready .wd-env-seal>.wd-seal-xl{opacity:1;transform:scale(1)}
+.wd-env-seal>.wd-seal-xl{transform:scale(.7)}
+/* o selo “quebra” ao abrir: .9 → 1.15 + fade */
+.wd-env.is-breaking .wd-seal-xl{animation:wd-seal-break .6s var(--wd-ease-out) forwards}
+@keyframes wd-seal-break{0%{transform:scale(1);opacity:1}35%{transform:scale(.9);opacity:1}100%{transform:scale(1.15);opacity:0}}
+.wd-env-date{color:var(--wd-sea-text);max-width:min(88vw,38em);line-height:1.7;text-wrap:balance}
+.wd-env-actions{display:flex;flex-direction:column;align-items:center;gap:18px}
+.wd-env-sound{display:grid;place-items:center;width:18px;height:18px}
+.wd-env-sound .wd-i{width:18px;height:18px}
+.wd-env-sound .wd-mute{display:none}
+#wd-openBtn.is-muted .wd-env-sound .wd-wave{display:none}
+#wd-openBtn.is-muted .wd-env-sound .wd-mute{display:inline}
+#wd-openBtn{background:var(--wd-sea)}
+#wd-openBtn:hover{background:#2A3F5C}
+.wd-env-alt{color:var(--wd-sea-text);font-size:.6875rem}
+.wd-env-alt:hover{color:var(--wd-sea)}
+
+/* =====================================================================================================
+   player flutuante da música
+   ===================================================================================================== */
+.wd-player{position:fixed;left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom));z-index:95;display:flex;align-items:center;gap:12px;height:52px;padding:0 6px 0 0;border-radius:var(--wd-r-pill);color:var(--wd-cream);
+  opacity:0;transform:translateY(18px);transition:opacity var(--wd-dur-slow) var(--wd-ease-out),transform var(--wd-dur-slow) var(--wd-ease-out)}
+.wd-player[hidden]{display:none}
+.wd-player.is-in{opacity:1;transform:none}
+.wd-player-disc{position:relative;width:52px;height:52px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--wd-sea);box-shadow:0 10px 30px -12px rgba(30,48,72,.6),inset 0 0 0 1px rgba(184,151,90,.45);
+  transition:transform var(--wd-dur-fast) var(--wd-ease-out),box-shadow var(--wd-dur-base) var(--wd-ease-out)}
+.wd-player-disc img{width:40px;height:40px;animation:wd-spin 12s linear infinite;animation-play-state:paused}
+.wd-player[aria-pressed="true"] .wd-player-disc img{animation-play-state:running}
+.wd-player:hover .wd-player-disc,.wd-player:focus-visible .wd-player-disc{transform:scale(1.06);box-shadow:var(--wd-glow)}
+.wd-player:active .wd-player-disc{transform:scale(.95)}
+.wd-player:focus-visible{outline:none}
+.wd-player:focus-visible .wd-player-disc{outline:2px solid var(--wd-champagne);outline-offset:4px}
+/* equalizador: 4 barrinhas champanhe sobre uma pílula marinho */
+.wd-player-eq{display:flex;align-items:flex-end;gap:3px;height:20px;padding:0 2px}
+.wd-player-eq i{width:3px;height:100%;border-radius:2px;background:var(--wd-champagne);transform-origin:bottom;transform:scaleY(.18);transition:transform var(--wd-dur-base) var(--wd-ease-out)}
+.wd-player[aria-pressed="true"] .wd-player-eq i{animation:wd-eq .9s ease-in-out infinite alternate}
+.wd-player-eq i:nth-child(2){animation-delay:-.35s!important;animation-duration:.7s!important}
+.wd-player-eq i:nth-child(3){animation-delay:-.6s!important;animation-duration:1.05s!important}
+.wd-player-eq i:nth-child(4){animation-delay:-.2s!important;animation-duration:.8s!important}
+@keyframes wd-eq{0%{transform:scaleY(.2)}50%{transform:scaleY(.95)}100%{transform:scaleY(.45)}}
+/* etiqueta que desliza no hover/foco */
+.wd-player-label{max-width:0;overflow:hidden;white-space:nowrap;font-size:.75rem;letter-spacing:.06em;color:var(--wd-sea);padding:7px 0;border-radius:var(--wd-r-pill);background:var(--wd-glass-washi);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  opacity:0;transition:max-width var(--wd-dur-base) var(--wd-ease-out),padding var(--wd-dur-base) var(--wd-ease-out),opacity var(--wd-dur-fast) var(--wd-ease-out)}
+.wd-player-label b{font-weight:500}
+.wd-player:hover .wd-player-label,.wd-player:focus-visible .wd-player-label{max-width:260px;padding:7px 14px;opacity:1}
+@media (hover:none){.wd-player-label{display:none}}
+
+@media (prefers-reduced-motion:reduce){
+  .wd-player-disc img,.wd-player-eq i{animation:none!important}
+  .wd-player[aria-pressed="true"] .wd-player-eq i{transform:scaleY(.7)}
+  .wd-player[aria-pressed="true"] .wd-player-eq i:nth-child(2n){transform:scaleY(.45)}
+  .wd-env-sketch circle,.wd-env-sketch path{stroke-dashoffset:0}
+  .wd-env-logo{opacity:1}
+}
+
+/* =====================================================================================================
+   navbar real: menu mobile (painel noite do componente .wd-mpanel, aqui fixo em tela cheia)
+   ===================================================================================================== */
+.wd-brand img{width:36px;height:36px;transition:transform var(--wd-dur-base) var(--wd-ease-out)}
+.wd-brand:hover img{transform:rotate(-8deg) scale(1.06)}
+.nav--night .wd-brand img{filter:brightness(0) invert(.92) sepia(.12)}
+#wd-mpanel{position:fixed;inset:0;z-index:89;padding:calc(var(--wd-nav-h) + 40px) 28px 40px;justify-content:center;gap:10px}
+#wd-mpanel a{font-size:clamp(2.2rem,9vw,3rem);color:var(--wd-cream)}
+#wd-mpanel a:focus-visible{outline-offset:6px}
+#wd-mpanel a:nth-child(4) span{color:var(--wd-champagne)}
+.wd-mpanel-date{margin-top:28px;color:var(--wd-cream-muted);opacity:0;transition:opacity var(--wd-dur-slow) var(--wd-ease-out) .25s}
+#wd-mpanel.is-open .wd-mpanel-date{opacity:1}
+body.wd-menu-open #wd-nav .nav-ink{color:var(--wd-cream)!important}
+body.wd-menu-open #wd-nav .nav-shell{background:transparent!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+body.wd-menu-open .wd-brand img{filter:brightness(0) invert(.92) sepia(.12)}
+#wd-menuIc{transition:d var(--wd-dur-base) var(--wd-ease-inout)}
+
+/* =====================================================================================================
+   #inicio · hero real (layout derivado do #wd-hero / #wd-heroContent do design system)
+   ===================================================================================================== */
+/* o hero fica fixo (sticky) atrás de tudo, como o #wd-hero do design system; as seções seguintes deslizam por cima */
+#inicio{position:sticky;top:0;z-index:1;height:100vh;height:100svh;min-height:560px;overflow:hidden;overflow:clip;--wd-fill-img:url(../img/correndo-praia-746.webp)}
+#inicio .wd-hero-stage{position:relative;height:100%;overflow:hidden;isolation:isolate;background:var(--wd-paper)}
+#site-scroller>section:not(#inicio),#site-scroller>footer{position:relative;z-index:5}
+/* foto: no desktop ocupa os 70% da direita e se dissolve no papel à esquerda (o casal fica à direita do texto) */
+#inicio .wd-hero-plate{left:30%;width:70%;object-position:50% 62%;filter:blur(.6px) saturate(.96);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 34%);mask-image:linear-gradient(90deg,transparent 0%,#000 34%)}
+#inicio .wd-hero-veil{background:var(--wd-gr-candle),radial-gradient(120% 90% at 50% 50%,transparent 58%,rgba(30,48,72,.14) 100%),linear-gradient(90deg,rgba(251,248,243,.7) 0%,rgba(251,248,243,.25) 40%,rgba(251,248,243,0) 62%)}
+#inicio .wd-goldline{z-index:5}
+#inicio .wd-goldline path{stroke-width:1.4}
+.wd-hero-content{position:absolute;inset:0;z-index:4;padding:calc(var(--wd-nav-h) + 3vh) clamp(20px,4.4vw,72px) clamp(26px,5vh,56px);display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr auto;gap:12px 40px;pointer-events:none;will-change:transform,opacity}
+.wd-hero-content a,.wd-hero-content button,.wd-hero-content .wd-names{pointer-events:auto}
+.wd-hero-kicker{grid-column:1/-1}
+.wd-hero-kicker .wd-t-eyebrow{display:flex;align-items:center;gap:12px;color:var(--wd-sea)}
+#inicio .wd-names{grid-column:1;grid-row:2;align-self:center;font-size:clamp(4.2rem,min(12.5vw,21vh),13rem)}
+#inicio .wd-names .wd-line:nth-child(2){padding-left:14%}
+#inicio .wd-names .wd-line:nth-child(3){padding-left:26%}
+
+#inicio .wd-word .wd-fill{background-size:220% auto}
+.wd-hero-side{grid-column:2;grid-row:2;align-self:end;margin-bottom:-2vh;display:flex;flex-direction:column;align-items:flex-end;gap:20px;text-align:right;padding:26px 28px;border-radius:var(--wd-r-md);
+  background:rgba(251,248,243,.7);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1px rgba(184,151,90,.34),0 30px 60px -40px rgba(30,48,72,.45)}
+.wd-hero-side .wd-count small{color:var(--wd-sea-text)}
+.wd-hero-side .wd-count b{transition:color var(--wd-dur-fast) var(--wd-ease-out)}
+.wd-hero-side .wd-count b.is-tick{color:var(--wd-heading)}
+.wd-hero-place{display:flex;align-items:center;gap:8px;font-size:.75rem;letter-spacing:.08em;color:var(--wd-sea-text)}
+.wd-hero-place .wd-i{width:16px;height:16px;color:var(--wd-gold)}
+.wd-hero-foot{grid-column:1/-1;display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+.wd-hero-actions{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.wd-hero-actions .wd-btn{background:var(--wd-sea)}
+.wd-hero-actions .wd-btn:hover{background:#2A3F5C}
+#wd-saveDate .wd-seal-disc{background:var(--wd-sea)}
+#wd-saveDate:hover .wd-seal-disc{background:var(--wd-gold)}
+#wd-saveDate .wd-seal-ring{color:var(--wd-sea)}
+#wd-saveDate .wd-seal-ring text{letter-spacing:0}
+#wd-saveDate .wd-seal-in{gap:4px}
+#inicio .wd-scrollcue span{color:var(--wd-sea-text)}
+#inicio .wd-scrollcue div{background:rgba(30,48,72,.25)}
+
+@media (max-width:1023px){
+  .wd-hero-content{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto auto}
+  .wd-hero-side{grid-column:1;grid-row:3;align-self:start;align-items:flex-start;text-align:left}
+  .wd-hero-side .wd-count{justify-content:flex-start}
+  .wd-hero-side .wd-count div{align-items:flex-start}
+}
+/* mobile: foto em tela cheia, papel no alto para os nomes, nomes centralizados e lateral abaixo */
+@media (max-width:767px){
+  #inicio .wd-hero-plate{left:0;width:100%;top:auto;bottom:-16%;height:62%;object-position:50% 50%;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 26%);mask-image:linear-gradient(180deg,transparent 0%,#000 26%)}
+  #inicio .wd-hero-veil{background:var(--wd-gr-candle),linear-gradient(180deg,rgba(251,248,243,0) 60%,rgba(251,248,243,.4) 100%)}
+  .wd-hero-content{padding:calc(var(--wd-nav-h) + 12px) 18px calc(84px + env(safe-area-inset-bottom));gap:10px;text-align:center}
+  .wd-hero-kicker{display:flex;justify-content:center}
+  #inicio .wd-names{font-size:clamp(3.6rem,19vw,6.2rem);text-align:center;align-self:start;margin-top:2vh}
+  #inicio .wd-names .wd-line{padding-left:0!important}
+  .wd-hero-content{grid-template-rows:auto auto auto 1fr auto}
+  .wd-hero-foot{grid-row:5}
+  .wd-hero-side{grid-row:3;justify-self:center;align-items:center;text-align:center;padding:14px 20px;gap:10px;margin-top:4px}
+  .wd-hero-side .wd-count{justify-content:center;gap:18px}
+  .wd-hero-side .wd-count div{align-items:center}
+  .wd-hero-side .wd-date{font-size:2.1rem}
+  .wd-hero-side .wd-count b{font-size:2rem}
+  .wd-hero-foot{justify-content:center}
+  .wd-hero-actions{justify-content:center;gap:14px;flex-wrap:nowrap}
+  .wd-hero-actions .wd-btn{height:48px;padding:0 20px}
+  #wd-saveDate{width:96px;height:96px}
+  .wd-hero-place{justify-content:center;font-size:.6875rem}
+}
+
+/* =====================================================================================================
+   REFINO DO HERO — mais delicadeza, mesma identidade (menos peso, menos caixas, mais respiro)
+   ===================================================================================================== */
+/* 1 · tipografia — nomes em traço fino, preenchimento luminoso (não foto), “&” menor e apoiado */
+#inicio .wd-names{line-height:.82}
+#inicio .wd-word .wd-stroke{-webkit-text-stroke:.9px var(--wd-sea);position:relative;z-index:0;text-shadow:0 1px 0 rgba(251,248,243,.6),0 6px 18px rgba(30,48,72,.14)}  /* sombra com o formato das letras, sem filter (o filter criava um retângulo) */
+#inicio .wd-word .wd-fill{z-index:1}
+/* preenchimento com a foto no hover e no scroll (efeito original mantido) */
+/* destaque dos nomes: traço marinho pleno, foto em duotom marinho (lê como tinta, não ofusca) e sombra suave que descola do fundo */
+#inicio .wd-word .wd-fill{background-image:linear-gradient(100deg,rgba(30,48,72,.86) 0%,rgba(30,48,72,.74) 45%,rgba(122,98,41,.66) 100%),var(--wd-fill-img);background-size:100% 100%,220% auto;background-position:0 0,calc(50% + var(--px,0px)) calc(42% + var(--py,0px))}
+#inicio .wd-names .wd-line:nth-child(2){margin:-.15em 0;position:relative;z-index:1}
+#inicio .wd-amp{font-size:.58em;font-weight:400;margin-right:0}
+#inicio .wd-hero-kicker .wd-t-eyebrow{font-family:var(--wd-serif);font-style:italic;font-weight:400;font-size:1.15rem;letter-spacing:.04em;text-transform:none;color:var(--wd-sea);gap:10px;text-shadow:0 0 10px rgba(251,248,243,.9)}
+#inicio .wd-hero-kicker .wd-t-eyebrow>i{width:6px;height:6px;background:var(--wd-gold)}
+/* sans só na interface: 400, 11–12px, tracking ≤ .16em (rótulos) / .06em (botões) */
+#inicio .wd-btn,#wd-nav .wd-nav-cta{font-weight:400;font-size:.75rem;letter-spacing:.06em}
+#inicio .wd-scrollcue span{font-size:.6875rem;letter-spacing:.16em}
+#inicio .wd-seal-in{font-weight:400;font-size:.6875rem;letter-spacing:.16em}
+
+/* 2 · data e contagem sem cartão — flutuam sobre a foto, protegidas por um véu radial de papel */
+.wd-hero-side{background:none;border-radius:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;padding:0;gap:14px;position:relative;isolation:isolate}
+.wd-hero-side::before{content:"";position:absolute;z-index:-1;left:50%;top:50%;width:640px;height:640px;transform:translate(-50%,-50%);pointer-events:none;
+  background:radial-gradient(closest-side,rgba(251,248,243,.72),rgba(251,248,243,.42) 55%,transparent)}
+.wd-hero-date{display:flex;align-items:center;gap:14px;font-family:var(--wd-serif);font-style:italic;font-weight:400;font-size:clamp(1.6rem,2.4vw,2.4rem);line-height:1.1;color:var(--wd-sea)}
+.wd-hero-rule{display:inline-block;width:40px;height:1px;background:var(--wd-champagne);flex:none}
+.wd-hero-div{display:block;width:56px;height:1px;background:rgba(184,151,90,.35)}
+.wd-cd{display:flex;align-items:baseline;flex-wrap:nowrap;gap:.28em;font-family:var(--wd-serif);font-weight:400;font-size:clamp(1.9rem,3vw,3rem);line-height:1;color:var(--wd-sea);font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}
+.wd-cd-n{display:inline-flex}
+.wd-cd-n>span{display:inline-block}
+.wd-cd-u{font-style:italic;font-size:.55em;color:rgba(30,48,72,.85);margin-left:.08em}   /* --wd-ink-muted e --wd-sea-text não passavam AA sobre a foto */
+.wd-cd>i{font-style:normal;color:var(--wd-champagne);font-size:.6em;margin:0 .18em}
+.wd-hero-place{font-family:var(--wd-serif);font-style:italic;font-size:1rem;letter-spacing:0;color:rgba(30,48,72,.85);gap:8px}
+.wd-hero-place .wd-i{width:14px;height:14px;stroke-width:.9;color:var(--wd-gold)}
+
+/* 3 · linha dourada — fio .8px, opacidade .55, rota pela faixa vazia entre o eyebrow e os nomes */
+#inicio .wd-goldline{inset:0;top:0;height:100%;transform:none;opacity:1}
+#inicio .wd-goldline path{stroke:url(#wd-gilt-soft);stroke-width:1.3}
+
+/* 4 · ações */
+#inicio .wd-hero-actions .wd-btn{height:48px;padding:0 24px;background:var(--wd-sea)}
+#inicio .wd-hero-actions .wd-btn:hover{background:#2A3F5C}
+#wd-saveDate{width:112px;height:112px;color:var(--wd-sea)}
+#wd-saveDate .wd-seal-disc{inset:14px;background:rgba(251,248,243,.85);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:inset 0 0 0 .6px var(--wd-champagne)}
+#wd-saveDate:hover .wd-seal-disc{background:rgba(251,248,243,.95);box-shadow:inset 0 0 0 .6px var(--wd-champagne),0 0 24px rgba(184,151,90,.28)}
+#wd-saveDate .wd-seal-ring{animation-duration:30s;opacity:.8}
+#wd-saveDate .wd-seal-ring text{font-size:7.5px;letter-spacing:2.2px}
+#wd-saveDate .wd-seal-in .wd-i{width:16px;height:16px;stroke-width:1}
+
+/* 5 · player — disco de 40px em papel/vidro, monograma marinho, barras finas, etiqueta em itálico */
+.wd-player{left:max(24px,env(safe-area-inset-left));bottom:max(24px,env(safe-area-inset-bottom));height:40px;gap:10px}
+.wd-player-disc{width:40px;height:40px;background:rgba(251,248,243,.78);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 0 0 .6px rgba(184,151,90,.6),0 8px 24px -14px rgba(30,48,72,.45)}
+.wd-player-disc img{width:30px;height:30px}
+.wd-player:hover .wd-player-disc,.wd-player:focus-visible .wd-player-disc{transform:scale(1.06);box-shadow:inset 0 0 0 .6px var(--wd-champagne),0 0 22px rgba(184,151,90,.3)}
+.wd-player-eq{height:14px;gap:3px}
+.wd-player-eq i{width:1.5px;background:rgba(184,151,90,.8)}
+.wd-player-label{font-family:var(--wd-serif);font-style:italic;font-size:.95rem;letter-spacing:.01em;transform:translateX(-8px);transition:max-width var(--wd-dur-base) var(--wd-ease-out),padding var(--wd-dur-base) var(--wd-ease-out),opacity var(--wd-dur-fast) var(--wd-ease-out),transform var(--wd-dur-base) var(--wd-ease-out)}
+.wd-player-label b{font-weight:500}
+.wd-player:hover .wd-player-label,.wd-player:focus-visible .wd-player-label{transform:none}
+
+/* 6 · navbar — proteção em gradiente no topo, links 12px, pill só depois do hero */
+#wd-nav::before{content:"";position:absolute;left:0;right:0;top:0;height:170px;pointer-events:none;z-index:-1;
+  background:linear-gradient(180deg,rgba(251,248,243,.92) 0%,rgba(251,248,243,.78) 38%,rgba(251,248,243,.35) 72%,rgba(251,248,243,0) 100%);transition:opacity .5s var(--wd-ease-out)}
+#wd-nav.nav--scrolled::before,#wd-nav.nav--night::before,body.wd-menu-open #wd-nav::before{opacity:0}
+#wd-nav .wd-navlinks a.u-link{font-weight:500;font-size:.75rem;letter-spacing:.08em}
+/* contraste sobre a foto: halo de papel atrás das letras (o mesmo do Koisei nos links sobre a placa) */
+#wd-nav:not(.nav--scrolled):not(.nav--night) .nav-ink{text-shadow:0 0 10px rgba(251,248,243,.95),0 0 3px rgba(251,248,243,.85)}
+#wd-nav:not(.nav--scrolled):not(.nav--night) .wd-brand img{filter:drop-shadow(0 0 6px rgba(251,248,243,.9))}
+#wd-nav:not(.nav--night) .nav-ink{color:var(--wd-sea)}
+#wd-nav .wd-nav-cta{transition:opacity var(--wd-dur-base) var(--wd-ease-out),visibility 0s linear 0s,background-color var(--wd-dur-fast),color var(--wd-dur-fast),border-color .5s}
+#wd-nav .wd-nav-cta.is-hidden{opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--wd-dur-base) var(--wd-ease-out),visibility 0s linear .75s}
+.wd-brand img{width:32px;height:32px}
+.wd-brand span{font-size:.6875rem;letter-spacing:.18em;font-weight:500}
+
+body.wd-cursor,body.wd-cursor *{cursor:none!important}
+body.wd-cursor input,body.wd-cursor textarea{cursor:text!important}
+/* cursor: seta dourada do design system (Elicyon #907533), sem ponto nem anel */
+#wd-cursor{position:fixed;left:0;top:0;z-index:120;width:14px;height:16px;pointer-events:none;opacity:0;
+  filter:drop-shadow(0 1px 1.5px rgba(251,248,243,.7));transition:opacity var(--wd-dur-fast) var(--wd-ease-out)}
+#wd-cursor svg{display:block;width:14px;height:16px;transform-origin:2px 2px;transition:transform var(--wd-dur-fast) var(--wd-ease-out)}
+#wd-cursor path{fill:var(--wd-gold);transition:fill var(--wd-dur-fast) var(--wd-ease-out)}
+body.wd-cursor-seen #wd-cursor{opacity:1}
+#wd-cursor.is-link svg{transform:scale(1.18)}
+#wd-cursor.is-link path{fill:var(--wd-champagne)}
+body.wd-cursor-out #wd-cursor{opacity:0}
+
+@media (max-width:1023px){
+  .wd-hero-side{align-items:flex-start}
+  .wd-hero-side::before{width:520px;height:420px}
+}
+@media (max-width:767px){
+  #inicio .wd-word .wd-stroke{-webkit-text-stroke:1px var(--wd-sea)}
+  .wd-hero-side{align-items:center;padding:0;gap:10px}
+  .wd-hero-side::before{width:440px;height:300px}
+  .wd-hero-date{font-size:1.55rem}
+  .wd-cd{font-size:1.9rem}
+  .wd-hero-place{font-size:.95rem}
+  #inicio .wd-goldline{display:none}
+  #wd-saveDate{width:96px;height:96px}
+  #wd-saveDate .wd-seal-disc{inset:12px}
+  .wd-hero-content{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+}
+@media (prefers-reduced-motion:reduce){
+  #wd-cursor,#wd-cursor svg{transition:none}
+}
+
+/* =====================================================================================================
+   #convite · três cenas de tela cheia — a foto é o palco, o texto é grande e serifado; sem cards nem raios
+   ===================================================================================================== */
+#convite.wd-sheet{min-height:0;box-shadow:0 -30px 60px -30px rgba(30,48,72,.28)}
+.wd-scene{position:relative}
+.wd-kb{display:block;width:100%;height:100%;overflow:hidden}
+.wd-kb img{display:block;width:100%;height:100%;object-fit:cover}
+/* fotos ampliadas além de 1.6× (densidade de pixels considerada): filtro leve + Ken Burns lento, com o grain da página por cima */
+img.wd-upscaled{filter:contrast(.96) saturate(.92)}
+.wd-kb.wd-kb-on{animation:wd-kenburns 14s var(--wd-ease-inout) infinite alternate}
+@keyframes wd-kenburns{from{transform:scale(1)}to{transform:scale(1.06)}}
+
+/* cena 1 · a janela que se abre — pin de 180vh (140vh no mobile) com scrub */
+.wd-s1{height:180vh;height:180svh}
+.wd-scene-sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.wd-s1-win{position:absolute;inset:0;margin:0;clip-path:inset(18% 30% round 2px);will-change:clip-path}
+.wd-s1-img{object-position:50% 58%;transform:scale(1.25);transform-origin:50% 55%;will-change:transform}
+.wd-s1-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(26,19,14,.42) 0%,rgba(26,19,14,.14) 18%,rgba(26,19,14,0) 30%,rgba(26,19,14,0) 38%,rgba(26,19,14,.5) 78%,rgba(26,19,14,.62) 100%)}
+.wd-s1-eyebrow{position:absolute;z-index:2;left:clamp(20px,6vw,96px);top:calc(var(--wd-nav-h) + 4vh);margin:0;font-family:var(--wd-serif);font-style:italic;font-weight:400;font-size:1.15rem;letter-spacing:.04em;color:rgba(251,248,243,.8);opacity:0;text-shadow:0 1px 18px rgba(26,19,14,.45)}
+.wd-s1-title{position:absolute;z-index:2;left:clamp(20px,6vw,96px);right:clamp(20px,6vw,96px);bottom:clamp(48px,11vh,120px);margin:0;max-width:9.5em;
+  font-family:var(--wd-serif);font-weight:400;font-size:clamp(2.6rem,7.5vw,7.5rem);line-height:1.02;letter-spacing:-.015em;color:var(--wd-paper);text-shadow:0 2px 40px rgba(26,19,14,.35);text-wrap:balance}
+.wd-s1-title em{color:#EAD9B5}
+.wd-w{display:inline-block;opacity:.15;transform:translateY(30%);will-change:transform,opacity}
+
+/* intervalos de papel entre as cenas: grain + 7 pétalas lentas */
+.wd-interlude{position:relative;height:14vh;height:14svh;min-height:90px}
+.wd-interlude canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* cena 2 · mãos — “juntos” começa no papel e invade a foto (duas camadas recortadas pelo retângulo da foto) */
+.wd-s2{padding:6vh 0 clamp(80px,14vh,160px)}
+.wd-s2-photo{position:relative;margin:0 0 0 auto;width:62vw;height:86vh;height:86svh;overflow:hidden}
+.wd-s2-par{position:absolute;left:0;right:0;top:-6%;bottom:-6%;display:block;will-change:transform}
+.wd-s2-word{position:absolute;inset:0;z-index:2;margin:0;pointer-events:none}
+.wd-s2-layer{position:absolute;inset:0;display:block}
+.wd-s2-w{position:absolute;left:clamp(20px,5vw,80px);top:calc(6vh + 86svh * .34);font-family:var(--wd-serif);font-weight:400;font-size:clamp(6rem,20vw,20rem);line-height:.9;letter-spacing:-.02em;white-space:nowrap;will-change:transform}
+.wd-s2-layer.is-out .wd-s2-w{color:transparent;-webkit-text-stroke:.7px var(--wd-sea)}
+.wd-s2-layer.is-in .wd-s2-w{color:rgba(251,248,243,.9);text-shadow:0 0 1px rgba(26,19,14,.35),0 2px 24px rgba(26,19,14,.32)}
+.wd-s2-text{position:relative;z-index:3;max-width:13em;margin:clamp(40px,7vh,72px) 0 0 clamp(20px,6vw,96px);text-wrap:balance}
+.wd-s2-text em{color:var(--wd-gold-text)}
+.wd-s2-text .mLine>span{white-space:nowrap}
+
+/* cena 3 · você — foto em tela cheia com parallax e moldura de papel que fecha (0 → 8vh × 6vw) */
+.wd-s3{min-height:100vh;min-height:100svh;display:grid;place-items:stretch center;overflow:hidden;padding:calc(8vh + 54px) 8vw 11vh}   /* fecho no alto, véu embaixo: os rostos ficam livres no meio */
+.wd-s3-photo{position:absolute;inset:0}
+.wd-s3-photo .wd-kb img{object-position:50% 0%}
+.wd-s3-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(26,19,14,.5) 0%,rgba(26,19,14,.28) 22%,rgba(26,19,14,0) 42%,rgba(26,19,14,0) 62%,rgba(26,19,14,.32) 100%)}
+.wd-s3-frame{position:absolute;inset:0;z-index:2;pointer-events:none;border-style:solid;border-color:var(--wd-paper);
+  border-width:calc(var(--wd-f,0) * 8vh) calc(var(--wd-f,0) * 6vw)}
+.wd-s3-content{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:clamp(28px,5vh,56px);text-align:center}
+.wd-s3-title{margin:0;font-family:var(--wd-serif);font-weight:400;font-size:clamp(3rem,6.6vw,7.25rem);line-height:1;letter-spacing:-.015em;color:var(--wd-paper);text-shadow:0 2px 40px rgba(26,19,14,.45)}
+.wd-s3-l{display:block;overflow:hidden;padding:.02em .1em .08em}
+.wd-s3-l>span{display:inline-block}
+.wd-s3-title em{color:var(--wd-champagne);font-style:italic;animation:wd-glow-soft var(--wd-dur-ambient) ease-in-out infinite}
+@keyframes wd-glow-soft{0%,100%{text-shadow:0 2px 40px rgba(26,19,14,.45),0 0 10px rgba(184,151,90,.14)}50%{text-shadow:0 2px 40px rgba(26,19,14,.45),0 0 22px rgba(184,151,90,.35),0 0 60px rgba(232,165,75,.18)}}
+.wd-s3-veil{max-width:30em;padding:clamp(22px,3.4vh,34px) clamp(22px,3vw,40px);background:rgba(251,248,243,.88);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;gap:14px}
+.wd-s3-date{margin:0;font-family:var(--wd-serif);font-style:italic;font-size:1.25rem;color:var(--wd-sea)}
+.wd-s3-veil .wd-t-body-lg{margin:0;color:var(--wd-ink-body)}
+.wd-s3-link{color:var(--wd-sea);margin-top:6px}
+
+/* navbar sobre foto em tela cheia: vidro escuro e texto em papel */
+#wd-nav.nav--photo .nav-shell{background:rgba(26,19,14,.32)!important;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+#wd-nav.nav--photo .nav-ink{color:var(--wd-paper)!important;text-shadow:none!important}
+#wd-nav.nav--photo .nav-border{border-color:rgba(251,248,243,.45)!important}
+#wd-nav.nav--photo .wd-nav-cta:hover{background:var(--wd-paper);color:var(--wd-sea)!important}
+#wd-nav.nav--photo .wd-brand img{filter:brightness(0) invert(.97)}
+#wd-nav.nav--photo::before{opacity:0}
+
+@media (max-width:767px){
+  .wd-s1{height:140vh;height:140svh}
+  .wd-s1-title{max-width:none}
+  .wd-s2{padding-top:12vh}
+  .wd-s2-photo{width:100vw;height:70vh;height:70svh}
+  .wd-s2-w{left:18px;top:calc(12vh - .48em)}
+  .wd-s2-text{margin-left:20px;margin-right:20px;max-width:none}
+  .wd-s3{padding:calc(6vh + 52px) 9vw 9vh}
+  .wd-s3-veil{padding:20px 18px}
+  /* player: recolhe para 32 px e sobe para a navbar, ao lado do “Menu” — nunca cobre texto */
+  .wd-player{left:auto;right:112px;top:18px;bottom:auto;height:32px;gap:6px}
+  .wd-player-disc{width:32px;height:32px}
+  .wd-player-disc img{width:24px;height:24px}
+  .wd-player-eq{height:12px;gap:2px}
+  .wd-player-label{display:none}
+}
+/* reduced motion: sem pins; cada cena é um bloco estático de tela cheia, já no estado final */
+@media (prefers-reduced-motion:reduce){
+  .wd-s1{height:auto}
+  .wd-scene-sticky{position:relative}
+  .wd-s1-win{clip-path:none!important}
+  .wd-s1-img{transform:none!important}
+  .wd-s1-eyebrow{opacity:1!important}
+  .wd-w{opacity:1!important;transform:none!important}
+  .wd-s3-frame{border-width:8vh 6vw!important}
+  .wd-kb.wd-kb-on{animation:none}
+}
+
+/* =====================================================================================================
+   ajustes de mobile e destaque do controle de som
+   ===================================================================================================== */
+/* envelope: “Entrar sem som” vira botão com contorno e ícone (antes era só um link discreto) */
+.wd-env-alt.wd-btn{height:44px;padding:0 20px;color:var(--wd-sea);box-shadow:inset 0 0 0 1px rgba(30,48,72,.45);font-size:.75rem;letter-spacing:.06em;font-weight:400}
+.wd-env-alt.wd-btn::after{background:var(--wd-sea)}
+.wd-env-alt.wd-btn:hover,.wd-env-alt.wd-btn:focus-visible{color:var(--wd-paper)}
+.wd-env-alt .btn-inner{gap:10px}
+.wd-env-alt .wd-i{width:18px;height:18px}
+.wd-env-alt .wd-ico-wave,.wd-env-alt.is-sound .wd-ico-mute{display:none}
+.wd-env-alt.is-sound .wd-ico-wave{display:inline}
+
+/* player: ícone claro de som ligado / desligado */
+.wd-player-ico{display:grid;place-items:center;width:18px;height:18px;color:var(--wd-sea)}
+.wd-player-ico .wd-i{width:18px;height:18px;stroke-width:1.4}
+.wd-player .wd-ico-mute,.wd-player[aria-pressed="true"] .wd-ico-wave{display:inline}
+.wd-player .wd-ico-wave,.wd-player[aria-pressed="true"] .wd-ico-mute{display:none}
+.wd-player[aria-pressed="false"] .wd-player-eq{display:none}
+.wd-player{padding:0 12px 0 4px;border-radius:var(--wd-r-pill);background:rgba(251,248,243,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 0 0 .8px rgba(184,151,90,.7),0 10px 26px -16px rgba(30,48,72,.5);height:48px}
+.wd-player-disc{box-shadow:none}
+.wd-player:hover,.wd-player:focus-visible{box-shadow:inset 0 0 0 .8px var(--wd-champagne),0 0 22px rgba(184,151,90,.32)}
+.wd-player-label{background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+
+@media (max-width:767px){
+  /* selo da agenda: botão redondo de 52 px só com o ícone (o anel de texto não cabe nem se lê nesse tamanho) */
+  #wd-saveDate{width:52px;height:52px;flex:none}
+  #wd-saveDate .wd-seal-ring{display:none}
+  #wd-saveDate .wd-seal-disc{inset:0}
+  #wd-saveDate .wd-seal-in{font-size:0;letter-spacing:0;gap:0}
+  #wd-saveDate .wd-seal-in .wd-i{width:20px;height:20px}
+  .wd-hero-actions{flex-wrap:nowrap;gap:12px}
+  .wd-hero-actions .wd-btn{flex:0 1 auto;min-width:0}
+  /* player na navbar: pílula de papel com borda champanhe, 36 px */
+  .wd-player{right:108px;top:16px;height:36px;padding:0 10px 0 3px;gap:6px}
+  .wd-player-disc{width:30px;height:30px}
+  .wd-player-disc img{width:22px;height:22px}
+  .wd-player-ico,.wd-player-ico .wd-i{width:16px;height:16px}
+}
+@media (max-width:359px){ .wd-player-eq{display:none} }
+
+@media (max-width:379px){ #wd-nav .wd-brand span{display:none} }   /* em 360 px só o monograma: o player precisa de espaço na navbar */
+@media (max-width:767px){ .wd-hero-content{padding-bottom:calc(36px + env(safe-area-inset-bottom))} }   /* o player foi para a navbar: o rodapé do hero não precisa mais da reserva */
+@media (min-width:768px){ .wd-hero-content{padding-bottom:120px} }   /* 24 px de margem + 48 px do player + 48 px de respiro até os botões do hero */
+
+/* o recorte retangular em “Mayara” vinha da sombra das letras cortada pelo overflow:hidden da linha (necessário só na entrada) */
+#inicio.wd-hero-in .wd-names .wd-line{overflow:visible}
+/* mobile: a luz de vela fica mais baixa e mais fraca, atrás da foto, e não sobre os nomes e a data */
+@media (max-width:767px){
+  #inicio .wd-hero-veil{background:radial-gradient(70% 45% at 50% 78%,rgba(232,165,75,.12),rgba(184,151,90,.05) 55%,transparent 80%),linear-gradient(180deg,rgba(251,248,243,0) 60%,rgba(251,248,243,.4) 100%)}
+  #inicio .wd-hero-veil::after{opacity:.35}
+}
+
+/* =====================================================================================================
+   camada global de movimento (wd-motion.js) — peças que as revelações e transições criam
+   ===================================================================================================== */
+/* texto dividido */
+.wd-ml{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.wd-ml-i{display:block;white-space:nowrap;transform-origin:0 100%}
+.wd-pl{display:block;white-space:nowrap}
+.wd-tok,.wd-ch{display:inline-block}
+.wd-s1-eyebrow{opacity:1}
+/* odômetro da contagem */
+.wd-odo{display:inline-block;height:1em;line-height:1;overflow:hidden;vertical-align:-.12em}
+.wd-odo-s{display:block}
+.wd-odo-s>span{display:block;height:1em;line-height:1}
+/* legenda: fio champanhe de 0 → 32px e o texto entra por clip-path */
+.wd-cap-rule{display:inline-block;height:1px;width:0;margin-right:12px;vertical-align:middle;background:var(--wd-champagne)}
+.wd-cap-t{display:inline-block}
+/* brilho champanhe uma única vez nos itálicos de destaque (1.4s) */
+.wd-em-shine{background:linear-gradient(100deg,var(--wd-em-c) 0%,var(--wd-em-c) 38%,#E3CC9A 50%,var(--wd-em-c) 62%,var(--wd-em-c) 100%) 120% 0/250% 100% no-repeat;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:wd-em-shine 1.4s var(--wd-ease-inout) both}
+@keyframes wd-em-shine{to{background-position:-20% 0}}
+/* fundo contínuo entre seções (substitui a cor fixa de cada seção marcada) */
+#site-scroller{position:relative}
+#site-scroller>[data-wd-bg]{background-color:var(--wd-page-bg,var(--wd-paper))}
+/* fio dourado contínuo: substitui as linhas douradas soltas */
+.wd-thread{position:absolute;top:0;left:0;width:100%;z-index:6;pointer-events:none;overflow:visible}
+.wd-thread path{fill:none;stroke:url(#wd-thread-g);stroke-width:.8;opacity:.5;stroke-dasharray:1;stroke-dashoffset:1;vector-effect:non-scaling-stroke}
+/* respiração também nos intervalos de papel */
+.wd-interlude{overflow:hidden;overflow:clip}
+.wd-interlude .wd-breath{position:absolute;width:60vmax;height:60vmax;left:20%;top:-30vmax;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(184,151,90,.16),rgba(232,180,192,.08) 55%,transparent 100%);animation:wd-breathe 14s var(--wd-ease-inout) infinite}
+/* tema escuro: player acompanha a navbar */
+body.wd-theme-dark .wd-player{background:rgba(36,27,21,.72);box-shadow:inset 0 0 0 .8px rgba(184,151,90,.6)}
+body.wd-theme-dark .wd-player-ico,body.wd-theme-dark .wd-player-label{color:var(--wd-paper)}
+/* fotos clicáveis: scale 1.03 */
+a img,a .wd-kb img,[data-wd-zoom] img{transition:transform var(--wd-dur-base) var(--wd-ease-out)}
+a:hover img,a:focus-visible img,[data-wd-zoom]:hover img{transform:scale(1.03)}
+/* cursor com rótulo contextual: a seta vira uma pílula em .4s */
+.wd-cursor-label{position:absolute;left:0;top:0;display:grid;place-items:center;min-width:0;height:0;padding:0;border-radius:999px;overflow:hidden;
+  background:var(--wd-sea);color:var(--wd-paper);font-family:var(--wd-sans);font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;
+  opacity:0;transform:translate(-50%,-50%) scale(.4);transition:opacity .4s var(--wd-ease-out),transform .4s var(--wd-ease-out),height .4s var(--wd-ease-out),padding .4s var(--wd-ease-out)}
+#wd-cursor.has-label .wd-cursor-label{height:64px;min-width:64px;padding:0 16px;opacity:1;transform:translate(-50%,-50%) scale(1);box-shadow:inset 0 0 0 .8px var(--wd-champagne)}
+#wd-cursor.has-label svg{transform:scale(0)}
+@media (prefers-reduced-motion:reduce){
+  .wd-cursor-label{transition:opacity .3s linear}
+  .wd-em-shine{animation:none}
+  .wd-interlude .wd-breath{display:none}
+  a:hover img{transform:none}
+}
+
+/* =====================================================================================================
+   AURELIA (adaptado ao nosso sistema) — tipografia, lettering, fundos, botões, cursor, cards
+   ===================================================================================================== */
+/* tipografia: Inter 300 no corpo; UI e botões em 400/500 com tracking aberto; Cormorant 400 nas aberturas */
+body{font-weight:300;line-height:1.75}
+.wd-t-body,.wd-t-body-sm,.wd-t-body-lg{font-weight:300;line-height:1.75}
+.wd-btn{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.wd-navlinks a.u-link{letter-spacing:.08em;font-weight:400}
+.wd-t-lead{font-family:var(--wd-serif);font-weight:400;font-size:clamp(1.1rem,1.7vw,1.4rem);line-height:1.6;color:var(--wd-ink-body)}
+.is-night .wd-t-lead,.is-sea .wd-t-lead{color:rgba(237,233,223,.84)}
+/* eyebrow: fio de 22px antes do texto; variante .dot */
+.wd-t-eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--wd-sans);font-weight:500;font-size:.68rem;letter-spacing:.22em;color:var(--wd-gold-text)}
+.wd-t-eyebrow>i{width:22px;height:1px;background:currentColor;transform:none;border-radius:0}
+.wd-t-eyebrow.dot>i{width:6px;height:6px;border-radius:50%}
+.is-night .wd-t-eyebrow,.is-sea .wd-t-eyebrow{color:#C9A25A}
+/* display serifada: só nos nomes e nos títulos gigantes (os itálicos continuam em Cormorant) */
+.wd-names,.wd-s1-title,.wd-s2-w,.wd-s3-title,.wd-statement,.wd-festa-title,.wd-ghost,.wd-rodape-names{font-family:var(--wd-serif-display)}
+.wd-s1-title em,.wd-s3-title em,.wd-statement em,.wd-festa-title em,.wd-rodape-names em{font-family:var(--wd-serif);font-style:italic}
+
+/* lettering do hero: Mayara vazado · & sólido em itálico · Lucas vazado, em zigue-zague (+8vw / −6vw) */
+#inicio .wd-names .wd-line{overflow:visible}
+#inicio .wd-names .wd-line:nth-child(1){padding-left:6vw}
+#inicio .wd-names .wd-line:nth-child(2){padding-left:14vw}
+#inicio .wd-names .wd-line:nth-child(3){padding-left:0}
+#inicio .wd-word .wd-stroke{-webkit-text-stroke:1px var(--wd-sea);text-shadow:none;filter:drop-shadow(0 6px 40px rgba(30,48,72,.18));will-change:transform}   /* camada própria: a sombra não repinta quando o preenchimento muda no scroll */
+/* nome fantasma “M & L” (paralaxe lenta pelo wd-motion) */
+.wd-ghost{position:absolute;left:0;right:0;top:50%;margin-top:-.42em;z-index:3;text-align:center;white-space:nowrap;font-weight:400;font-size:26vw;line-height:.84;letter-spacing:-.03em;color:var(--wd-sea);opacity:.04;pointer-events:none;user-select:none}
+.wd-ghost--foot{top:auto;bottom:-4vw;margin-top:0;z-index:1;font-size:24vw;color:var(--wd-cream)}
+
+/* frase que acende (data-wd-reveal="lit") */
+[data-wd-reveal="lit"] [data-gold]{color:var(--wd-gold-text)}
+.wd-s1-title [data-gold]{color:#EAD9B5}          /* sobre a foto escura o ouro-texto não passa AA: mantém o champanhe claro */
+.wd-statement-wrap{position:relative;padding:clamp(96px,14vw,180px) clamp(20px,6vw,96px);overflow:hidden;overflow:clip}
+.wd-statement{position:relative;z-index:2;margin:0;max-width:16ch;font-weight:400;font-size:clamp(2.4rem,5.6vw,5rem);line-height:1.1;letter-spacing:-.02em;color:var(--wd-heading)}
+.wd-statement [data-gold]{font-family:var(--wd-serif);font-style:italic}
+
+/* fundos: orbes no lugar da respiração */
+.wd-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;pointer-events:none;will-change:transform;
+  background:radial-gradient(circle at 30% 30%,rgba(184,151,90,.30),transparent 70%);animation:wd-drift 22s var(--wd-ease-inout) infinite}
+.wd-orb--sea{background:radial-gradient(circle at 30% 30%,rgba(30,48,72,.12),transparent 70%);animation-duration:28s;animation-direction:reverse}
+.wd-orb--foam{background:radial-gradient(circle at 30% 30%,rgba(246,243,236,.6),transparent 70%);animation-duration:32s}
+@keyframes wd-drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.15)}66%{transform:translate(-40px,50px) scale(.9)}}
+.wd-interlude .wd-orb{filter:blur(40px)}
+/* grain: SVG feTurbulence (substitui o canvas) */
+#wd-grain{display:none}
+body::after{content:'';position:fixed;inset:0;z-index:80;pointer-events:none;opacity:.03;background-size:220px;will-change:transform;transform:translateZ(0);
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* festa (noite): estrelas + glow dourado + 6 pétalas cor de lanterna */
+#festa{position:relative;min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:clamp(110px,14vw,180px) clamp(20px,6vw,96px);overflow:hidden;overflow:clip}
+.wd-stars{position:absolute;inset:0}
+.wd-star{position:absolute;border-radius:50%;background:#EAD9B5;opacity:0;animation:wd-twinkle var(--dur,3s) ease-in-out var(--del,0s) infinite}
+@keyframes wd-twinkle{0%,100%{opacity:0}50%{opacity:.9}}
+.wd-night-glow{position:absolute;width:680px;height:680px;top:-220px;right:-140px;background:radial-gradient(ellipse,rgba(184,151,90,.16),transparent 70%)}
+.wd-festa{position:relative;z-index:2;max-width:46rem;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center}
+.wd-festa-title{margin:0;font-weight:400;font-size:clamp(2.6rem,6vw,5.5rem);line-height:1.04;letter-spacing:-.015em;color:var(--wd-heading)}
+.wd-festa-title em{color:#EAD9B5}
+.wd-festa .wd-t-lead{margin:0;max-width:34em}
+/* rodapé com o fantasma em creme */
+#rodape{position:relative;overflow:hidden;overflow:clip;padding:clamp(80px,12vw,140px) 20px clamp(140px,20vw,260px);text-align:center}
+.wd-rodape{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px}
+.wd-rodape-names{margin:0;font-weight:400;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.1;color:var(--wd-cream)}
+.wd-rodape-names em{color:#C9A25A}
+
+/* botões novos (os atuais continuam) */
+@property --wd-border-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+.wd-btn.wd-btn--gilt,#inicio .wd-hero-actions .wd-btn.wd-btn--gilt{background:linear-gradient(120deg,#9A7B45,#C9A25A)!important;color:var(--wd-night);overflow:hidden;box-shadow:0 6px 24px rgba(184,151,90,.35);transition:transform var(--wd-dur-fast) var(--wd-ease-out),box-shadow var(--wd-dur-fast) var(--wd-ease-out)}
+.wd-btn--gilt::before{inset:0;z-index:1;opacity:1;animation:none;pointer-events:none;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-120%);transition:transform var(--wd-dur-base) var(--wd-ease-out)}
+.wd-btn--gilt:hover::before,.wd-btn--gilt:focus-visible::before{transform:translateX(120%)}
+.wd-btn--gilt:hover,.wd-btn--gilt:focus-visible{box-shadow:0 14px 40px rgba(184,151,90,.45)}
+.wd-btn--gilt .btn-inner{position:relative;z-index:2}
+.wd-btn.wd-btn--glass{background:rgba(251,248,243,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--wd-sea);box-shadow:inset 0 0 0 1px rgba(184,151,90,.55)}
+.wd-btn.wd-btn--glass:hover,.wd-btn.wd-btn--glass:focus-visible{background:rgba(184,151,90,.16)}
+.wd-btn--glass::before{inset:0;z-index:2;opacity:1;padding:1.4px;pointer-events:none;background:conic-gradient(from var(--wd-border-angle),transparent 25%,var(--wd-gold) 50%,transparent 75%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:wd-border-spin 4s linear infinite}
+@keyframes wd-border-spin{to{--wd-border-angle:360deg}}
+.wd-btn-line{display:inline-flex;align-items:center;gap:6px;font-family:var(--wd-sans);font-size:.74rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--wd-sea);border-bottom:1px solid currentColor;padding-bottom:3px;transition:color var(--wd-dur-fast) var(--wd-ease-out),gap var(--wd-dur-fast) var(--wd-ease-out)}
+.wd-btn-line .wd-i{width:14px;height:14px}
+.wd-btn-line:hover,.wd-btn-line:focus-visible{color:var(--wd-gold-text);gap:12px}
+
+/* cursor AURELIA: triângulo 15×17 #C9A25A em difference + ponto de 5px */
+#wd-cursor{width:15px;height:17px;mix-blend-mode:difference;filter:none}
+#wd-cursor svg{width:15px;height:17px;transform-origin:3px 3px;transition:transform var(--wd-dur-fast) var(--wd-ease-out)}
+#wd-cursor path,#wd-cursor.is-link path{fill:#C9A25A}
+#wd-cursor.is-grow svg{transform:scale(2.4)}
+#wd-cursor.has-label svg{transform:scale(0)}
+#wd-cursorDot{position:fixed;left:-2.5px;top:-2.5px;z-index:120;width:5px;height:5px;border-radius:50%;background:#C9A25A;pointer-events:none;opacity:0;transition:opacity var(--wd-dur-fast)}
+#wd-cursorLabel{position:fixed;left:0;top:0;z-index:121;pointer-events:none}
+body.wd-cursor-seen #wd-cursorDot{opacity:1}
+body.wd-cursor-out #wd-cursorDot,body:not(.wd-cursor) #wd-cursorDot{opacity:0}
+#wd-cursorLabel.has-label .wd-cursor-label{height:64px;min-width:64px;padding:0 16px;opacity:1;transform:translate(-50%,-50%) scale(1);box-shadow:inset 0 0 0 .8px var(--wd-champagne)}
+
+/* indicador de scroll: linha champanhe → transparente pulsando */
+.wd-scrollcue div,#inicio .wd-scrollcue div{background:linear-gradient(var(--wd-champagne),transparent);transform-origin:top;animation:wd-scrollp 2s ease-in-out infinite}
+.wd-scrollcue div i{display:none}
+@keyframes wd-scrollp{0%,100%{transform:scaleY(.3);opacity:.3}50%{transform:scaleY(1);opacity:1}}
+
+/* cards e ícones: elevação + borda champanhe + sombra suave */
+.wd-card{border-radius:var(--wd-r-md);background:rgba(251,248,243,.55);box-shadow:inset 0 0 0 1px var(--wd-line);transition:transform var(--wd-dur-base) var(--wd-ease-out),box-shadow var(--wd-dur-base) var(--wd-ease-out)}
+.wd-card:hover,.wd-card:focus-within{transform:translateY(-6px);box-shadow:inset 0 0 0 1px var(--wd-champagne),0 22px 60px -24px rgba(30,48,72,.22)}
+.wd-card-ic,.wd-info .ic{transition:transform var(--wd-dur-fast) var(--wd-ease-out),background-color var(--wd-dur-fast),color var(--wd-dur-fast)}
+.wd-card:hover .wd-card-ic,.wd-info:hover .ic{transform:rotate(-6deg) scale(1.08)}
+.wd-icon-cell{border-radius:var(--wd-r-md);box-shadow:inset 0 0 0 1px var(--wd-line);transition:transform var(--wd-dur-fast) var(--wd-ease-out),box-shadow var(--wd-dur-fast),color var(--wd-dur-fast)}
+.wd-icon-cell:hover{transform:translateY(-4px) scale(1.03);color:var(--wd-gold-text);box-shadow:inset 0 0 0 1px var(--wd-champagne),0 14px 36px -12px rgba(184,151,90,.3)}
+
+@media (max-width:767px){
+  #inicio .wd-names .wd-line:nth-child(n){padding-left:0}
+  .wd-ghost{font-size:30vw}
+  .wd-night-glow{width:420px;height:420px;top:-160px;right:-160px}
+}
+@media (prefers-reduced-motion:reduce){
+  .wd-orb,.wd-btn--glass::before,.wd-scrollcue div,#inicio .wd-scrollcue div{animation:none}
+  .wd-star{animation:none;opacity:.55}
+  .wd-btn--gilt::before{display:none}
+  #wd-cursor svg{transition:none}
+}
+.wd-s3-title em{color:#EAD9B5}   /* champanhe claro como na cena 1: o #B8975A sumia na parte clara da foto */
+
+/* =====================================================================================================
+   ajustes: cursor delicado (um só elemento) · botão do convite fixo no rodapé no mobile
+   ===================================================================================================== */
+/* cursor: só o triângulo dourado — sem blend, sem ponto de rastro, crescimento leve */
+#wd-cursor{mix-blend-mode:normal;filter:drop-shadow(0 1px 1.5px rgba(251,248,243,.75))}
+#wd-cursor path,#wd-cursor.is-link path{fill:var(--wd-gold)}
+#wd-cursor.is-grow svg{transform:scale(1.25)}
+#wd-cursor.has-label svg{transform:none}
+#wd-cursorDot{display:none!important}
+/* rótulo: texto pequeno ao lado da seta, sem pílula */
+#wd-cursorLabel .wd-cursor-label,#wd-cursorLabel.has-label .wd-cursor-label{position:absolute;left:18px;top:12px;display:block;width:auto;min-width:0;height:auto;padding:0;border-radius:0;background:none;box-shadow:none;
+  font-family:var(--wd-sans);font-weight:500;font-size:.625rem;letter-spacing:.18em;text-transform:uppercase;color:var(--wd-gold-text);text-shadow:0 0 6px rgba(251,248,243,.95),0 0 2px rgba(251,248,243,.9);
+  transform:translateX(-4px);opacity:0;transition:opacity var(--wd-dur-fast) var(--wd-ease-out),transform var(--wd-dur-fast) var(--wd-ease-out)}
+#wd-cursorLabel.has-label .wd-cursor-label{opacity:1;transform:none}
+body.wd-theme-dark #wd-cursorLabel .wd-cursor-label{color:#EAD9B5;text-shadow:0 0 6px rgba(36,27,21,.9)}
+body:not(.wd-cursor-seen) #wd-cursorLabel,body.wd-cursor-out #wd-cursorLabel{opacity:0}
+
+/* envelope no mobile: “Abrir o convite” fixo embaixo, no azul de sempre */
+@media (max-width:767px){
+  .wd-env-actions{position:fixed;left:0;right:0;bottom:0;z-index:6;gap:12px;padding:28px 20px calc(18px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(241,233,222,0),rgba(241,233,222,.94) 34%)}
+  .wd-env-stage{padding-bottom:150px}
+}
+
+/* confirmar presença: azul no hero; no mobile vira botão fixo embaixo, azul translúcido */
+.wd-fab{display:none}
+@media (max-width:767px){
+  .wd-hero-actions .wd-hero-cta{display:none}
+  .wd-hero-actions{justify-content:center}
+  .wd-fab{display:inline-flex;position:fixed;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom));z-index:90;width:max-content;margin:0 auto;height:48px;padding:0 24px;
+    background:rgba(30,48,72,.8);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--wd-paper);
+    box-shadow:inset 0 0 0 .8px rgba(251,248,243,.18),0 12px 30px -14px rgba(30,48,72,.6);
+    transition:opacity var(--wd-dur-base) var(--wd-ease-out),transform var(--wd-dur-base) var(--wd-ease-out),background-color var(--wd-dur-fast)}
+  .wd-fab:hover,.wd-fab:focus-visible{background:rgba(30,48,72,.92)}
+  .wd-fab .btn-inner{display:inline-flex;align-items:center;gap:10px}
+  .wd-fab .wd-i{width:16px;height:16px}
+  body.wd-is-opening .wd-fab,body.wd-menu-open .wd-fab{opacity:0;transform:translateY(16px);pointer-events:none}
+}
+@media (max-width:767px){ .wd-hero-content{padding-bottom:calc(84px + env(safe-area-inset-bottom))} }   /* espaço para o “Confirmar presença” fixo */
+
+/* =====================================================================================================
+   intro “My Love → Mayara & Lucas” escrita na areia (wd-intro.js)
+   ===================================================================================================== */
+/* medida: mesmo texto, mesma fonte; “My”/“Mayara” e “Love”/“Lucas” começam no mesmo x */
+.wd-intro-measure{position:fixed;inset:0;z-index:-1;visibility:hidden;pointer-events:none;overflow:hidden}
+.wd-intro-names{position:absolute;margin:0;font-family:var(--wd-serif-display);font-weight:400;font-size:clamp(5rem,16vw,15rem);line-height:.86;letter-spacing:-.025em;white-space:nowrap}
+.wd-il{display:block}
+.wd-il-amp{font-style:italic;font-size:.58em;line-height:1;margin:-.22em 0 -.16em 1.15em}
+@media (max-width:767px){ .wd-intro-names{font-size:22vw} }
+
+/* durante a intro: só a areia; nav, player e botão fixo somem; o hero fica pronto por baixo */
+#wd-nav,.wd-player,.wd-fab{transition:opacity var(--wd-dur-base) var(--wd-ease-out),visibility 0s}
+body.wd-intro #wd-nav,body.wd-intro .wd-player,body.wd-intro .wd-fab{opacity:0;visibility:hidden;pointer-events:none}
+body.wd-intro #inicio .wd-hero-content,body.wd-intro #inicio .wd-ghost{visibility:hidden}
+body.wd-intro.wd-intro-reveal #inicio .wd-hero-content,body.wd-intro.wd-intro-reveal #inicio .wd-ghost{visibility:visible}
+#inicio .wd-hero-veil{transition:opacity var(--wd-dur-slow) var(--wd-ease-out)}
+body.wd-intro:not(.wd-intro-reveal) #inicio .wd-hero-veil{opacity:0;transition:none}
+
+#wd-intro{position:fixed;inset:0;z-index:100;pointer-events:none}
+.wd-intro-skip{position:absolute;right:max(22px,env(safe-area-inset-right));bottom:calc(22px + env(safe-area-inset-bottom));z-index:3;pointer-events:auto;color:var(--wd-sea);opacity:.78}
+.wd-intro-skip:hover,.wd-intro-skip:focus-visible{opacity:1}
+.wd-intro-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* movimento reduzido: “My Love” → crossfade .6s → “Mayara & Lucas” → hero */
+.wd-intro-rm{position:absolute;inset:0;background:#E8DCC8;transition:opacity .6s var(--wd-ease-out)}
+.wd-intro-rm>div{position:absolute;inset:0;font-family:var(--wd-serif-display);font-weight:400;line-height:0;color:#9C8763;opacity:0;transition:opacity .6s var(--wd-ease-inout)}
+.wd-intro-rm span{position:absolute;white-space:pre}
+.wd-intro-rm .wd-intro-rm-amp{font-style:italic;color:#9A7B45}
+.wd-intro-rm.is-a .wd-intro-rm-a{opacity:1}
+.wd-intro-rm.is-b .wd-intro-rm-a{opacity:0}
+.wd-intro-rm.is-b .wd-intro-rm-b{opacity:1}
+.wd-intro-rm.is-out{opacity:0}
+/* depuração (?debug=1) */
+.wd-intro-debug{position:absolute;inset:0;z-index:2;pointer-events:none}
+.wd-intro-debug i{position:absolute;background:#e0245e;opacity:.8}
+.wd-intro-debug b,.wd-intro-debug em{position:absolute;left:12px;font:500 11px/1.4 ui-monospace,monospace;color:#fff;background:rgba(224,36,94,.85);padding:4px 8px}
+.wd-intro-debug b{top:12px}.wd-intro-debug em{top:40px;font-style:normal}
+.wd-intro-debug em:empty{display:none}
+/* “Rever a abertura” */
+.wd-mpanel-replay{margin-top:8px;font-size:.7rem}
+.wd-rodape-replay{margin-top:10px;color:#EAD9B5}
+#inicio .wd-names .wd-line>span{display:inline-block}   /* recebe o FLIP da intro (transform não vale em inline) */
+#inicio .wd-hero-side,#inicio .wd-hero-foot,#inicio .wd-hero-kicker{transition:opacity var(--wd-dur-base) var(--wd-ease-out)}
+body.wd-intro #inicio .wd-hero-side,body.wd-intro #inicio .wd-hero-foot,body.wd-intro #inicio .wd-hero-kicker{opacity:0;transition:none}   /* só entram depois que os nomes chegam ao lugar */

@@ -1,0 +1,72 @@
+{
+  "abracados": {
+    "source": "abraçados.PNG",
+    "crop": {
+      "left": 10,
+      "top": 4,
+      "width": 602,
+      "height": 508
+    },
+    "width": 602,
+    "height": 508,
+    "alt": "Mayara e Lucas abraçados à beira-mar, vestidos de branco, sorrindo para a câmera",
+    "srcset": "assets/img/abracados-602.webp 602w, assets/img/abracados-301.webp 301w",
+    "fallback": "assets/img/abracados.jpg"
+  },
+  "correndo-praia": {
+    "source": "correndo na praia.PNG",
+    "crop": {
+      "left": 20,
+      "top": 3,
+      "width": 746,
+      "height": 509
+    },
+    "width": 746,
+    "height": 509,
+    "alt": "O casal corre de mãos dadas pela areia molhada, com o mar e as pedras ao fundo",
+    "srcset": "assets/img/correndo-praia-746.webp 746w, assets/img/correndo-praia-373.webp 373w",
+    "fallback": "assets/img/correndo-praia.jpg"
+  },
+  "juntos-praia": {
+    "source": "juntos na praia.PNG",
+    "crop": {
+      "left": 20,
+      "top": 4,
+      "width": 724,
+      "height": 508
+    },
+    "width": 724,
+    "height": 508,
+    "alt": "Mayara e Lucas caminham de mãos dadas na água rasa, olhando e sorrindo",
+    "srcset": "assets/img/juntos-praia-724.webp 724w, assets/img/juntos-praia-362.webp 362w",
+    "fallback": "assets/img/juntos-praia.jpg"
+  },
+  "maos": {
+    "source": "maos se tocando.PNG",
+    "crop": {
+      "left": 54,
+      "top": 5,
+      "width": 716,
+      "height": 509
+    },
+    "width": 716,
+    "height": 509,
+    "alt": "Duas mãos quase se tocando diante do mar; na mão dela, o anel de noivado",
+    "srcset": "assets/img/maos-716.webp 716w, assets/img/maos-358.webp 358w",
+    "fallback": "assets/img/maos.jpg"
+  },
+  "pedido": {
+    "source": "pedido de casamento.PNG",
+    "crop": {
+      "left": 24,
+      "top": 3,
+      "width": 552,
+      "height": 781
+    },
+    "width": 552,
+    "height": 781,
+    "alt": "Logo após o pedido: ela mostra o anel e ele ergue o braço em comemoração, na beira da praia",
+    "srcset": "assets/img/pedido-552.webp 552w, assets/img/pedido-276.webp 276w",
+    "fallback": "assets/img/pedido.jpg"
+  }
+}

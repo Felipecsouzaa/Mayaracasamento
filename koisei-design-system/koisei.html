@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#F1E9DE">
+<title>Koisei Design System</title>
+<!-- preview capture: the Overview frame reports once its preloader has left (hero texture decoded,
+     1.6 s minimum, .9 s clip exit); the extra wait lets the title lines and the fades finish -->
+<meta name="preview-ready-selector" content="body.ds-overview-ready">
+<meta name="preview-ready-after-ms" content="1800">
+<link rel="icon" href="assets/overview/assets/koisei.aura.build/favicon.ico">
+<link rel="stylesheet" href="assets/overview/assets/koisei.aura.build/fonts.css">
+<link rel="stylesheet" href="assets/overview/assets/koisei.aura.build/koisei.css">
+<script src="assets/overview/assets/cdn.tailwindcss.com/3.4.17.js"></script>
+<script src="assets/overview/assets/koisei.aura.build/icons.js"></script>
+<script src="assets/overview/assets/code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<script src="assets/overview/assets/cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ================================================================ catalog shell
+   Routing and layout only. The navbar is the Overview's own <header id="nav"> (koisei.css + Tailwind
+   classes): in Overview it mirrors the page's .nav--scrolled / .nav--night states reported by the
+   frame; in Components it takes the page's .nav--scrolled washi glass. Specimens keep the page's
+   markup, classes and inline styles; .ds-* rules only release page-level positioning (fixed, h-screen). */
+:root { --ds-top: 88px; --ds-scrim: rgba(241,233,222,.9); --ds-line: rgba(37,28,22,.15); --ds-mute: rgba(37,28,22,.62); }
+html, body { height: 100%; }
+body { overflow: hidden; }
+#overview-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block; z-index: 0; background: var(--washi); }
+
+/* the page's header sits under its preloader until the loader leaves; the catalog copy waits for the frame */
+#nav { transition: opacity .6s cubic-bezier(.22,1,.36,1); }
+body:not(.ds-nav-in):not(.is-components) #nav { opacity: 0; pointer-events: none; }
+#nav nav a.is-active::after { transform: scaleX(1); }
+/* the two view links replace the page's link list (and its mobile burger); a soft washi halo keeps them
+   readable where they cross the plate's dark branches — invisible over the page's washi grounds */
+#nav:not(.nav--night) #nav-overview, #nav:not(.nav--night) #nav-components { text-shadow: 0 0 10px rgba(241,233,222,.9), 0 0 3px rgba(241,233,222,.7); }
+#nav nav a[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+
+/* ------------------------------------------------------------ components view */
+#view-components { position: fixed; top: var(--ds-top); left: 0; right: 0; bottom: 0; z-index: 10; display: none; }
+body.is-components #view-components { display: grid; grid-template-columns: 250px minmax(0, 1fr); }
+body.is-components #overview-frame { pointer-events: none; }   /* the live hero stage, parked behind */
+/* one washi scrim (the page's own ground) holds the specimens off the live stage; over Backgrounds it
+   becomes the spread shadow of the window specimen, so only that window looks through */
+#view-components::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: var(--ds-scrim); }
+body.ds-scene-clear #view-components::before { opacity: 0; }
+body.ds-scene-clear .ds-window { box-shadow: 0 0 0 200vmax var(--ds-scrim); }
+
+/* sidebar: its own night glass (the page's .nav--night ground, cream type), legible over any stage */
+#ds-side { overflow-y: auto; padding: 30px 14px 40px 20px; display: flex; flex-direction: column; gap: 2px;
+  background: rgba(36,27,21,.95); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(237,233,223,.14); color: var(--cream); }
+#ds-side .ds-lbl { margin: 0 0 16px 12px; font-size: 10px; letter-spacing: .32em; text-transform: uppercase; color: rgba(237,233,223,.6); display: flex; align-items: center; gap: 10px; }
+#ds-side .ds-lbl i { width: 6px; height: 6px; background: var(--vermilion); display: inline-block; }
+#ds-side a { display: flex; align-items: baseline; gap: 12px; padding: 9px 14px; border-radius: 9999px; font-size: 13px;
+  letter-spacing: .06em; color: rgba(237,233,223,.86); transition: background .35s cubic-bezier(.22,1,.36,1), color .35s; }
+#ds-side a b { font-weight: 400; font-size: 10px; letter-spacing: .1em; color: rgba(237,233,223,.5); font-variant-numeric: tabular-nums; }
+#ds-side a:hover { color: var(--cream); background: rgba(237,233,223,.08); }
+#ds-side a.is-current { background: var(--cream); color: var(--ink); }
+#ds-side a.is-current b { color: var(--vermilion); }
+
+#ds-main { position: relative; overflow-y: auto; overflow-x: hidden; isolation: isolate; padding: 64px clamp(20px, 4.4vw, 80px) 160px; }
+#ds-main > * { max-width: 1200px; }
+.ds-group { padding-bottom: 120px; }
+.ds-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px 24px;
+  border-bottom: 1px solid var(--ds-line); padding-bottom: 22px; margin-bottom: 40px; }
+.ds-head h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(40px, 4.6vw, 68px); line-height: 1; letter-spacing: -.015em; }
+.ds-head h2 em { font-style: italic; }
+.ds-eyebrow { font-size: 12px; line-height: 1rem; letter-spacing: .32em; text-transform: uppercase; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.ds-eyebrow i { width: 6px; height: 6px; background: var(--vermilion); display: inline-block; flex: none; }
+.ds-head .ds-src { font-size: 12px; letter-spacing: .12em; color: var(--ds-mute); }
+.ds-sub { margin: 52px 0 18px; font-size: 11px; letter-spacing: .32em; text-transform: uppercase; color: var(--ds-mute); }
+.ds-head + .ds-sub { margin-top: 0; }
+.ds-spec { margin: 0 0 64px; position: relative; }
+.ds-spec:last-child { margin-bottom: 0; }
+.ds-spec > h3 { margin: 0 0 16px; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 28px; line-height: 1.1; letter-spacing: -.01em; }
+.ds-meta { display: block; margin-top: 14px; font: 400 11.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: rgba(37,28,22,.72); overflow-wrap: anywhere; }
+.ds-meta b { font-weight: 600; color: var(--ink); }
+.ds-note { margin-top: 8px; max-width: 80ch; font-size: 13px; line-height: 1.7; color: rgba(37,28,22,.72); }
+.ds-note code { font: 400 11.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ds-row { display: flex; flex-wrap: wrap; align-items: center; gap: 22px 32px; }
+.ds-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; }
+.ds-cell > small { font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: var(--ds-mute); }
+.ds-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.ds-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.ds-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; border: 1px solid rgba(37,28,22,.4); border-radius: 9999px;
+  padding: 8px 18px; font-size: 12px; letter-spacing: .08em; color: var(--ink); background: transparent; cursor: pointer;
+  transition: background .35s, color .35s; }
+.ds-btn:hover { background: #251C16; color: #F1E9DE; }
+
+/* specimen grounds and releases */
+.ds-box { position: relative; overflow: hidden; border-radius: 4px; }
+.ds-plate { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ds-washi { background: var(--washi); box-shadow: inset 0 0 0 1px var(--ds-line); }
+.ds-night { background: var(--night); }
+.ds-flat { position: relative !important; inset: auto !important; top: auto !important; left: auto !important; right: auto !important; bottom: auto !important; transform: none !important; }
+.ds-pad { padding: 32px 36px; }
+</style>
+<style>
+/* ------------------------------------------------------------ components: formats */
+/* typography: role | live sample | declared size */
+.ds-type { display: grid; grid-template-columns: 180px minmax(0, 1fr) 170px; gap: 28px; align-items: center; padding: 26px 0; border-top: 1px solid var(--ds-line); }
+.ds-type:last-child { border-bottom: 1px solid var(--ds-line); }
+.ds-head + .ds-type { border-top: 0; }
+.ds-type .role { font-size: 14px; font-weight: 500; letter-spacing: .02em; color: var(--ink); }
+.ds-type .face { margin-top: 4px; font-size: 12px; line-height: 1.5; color: rgba(37,28,22,.72); }
+.ds-type .face code { display: block; margin-top: 6px; font: 400 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: rgba(37,28,22,.72); overflow-wrap: anywhere; }
+.ds-type .sample { min-width: 0; }
+.ds-type .sample > .ds-box { padding: 26px 30px; }
+.ds-type .sizes { text-align: right; font: 500 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); overflow-wrap: anywhere; }
+.ds-type .sizes i { display: block; font-style: normal; font-size: 10.5px; color: var(--ds-mute); }
+
+/* colors: live chip on its surface + label, value, token, use */
+.ds-colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(262px, 1fr)); gap: 26px 32px; }
+.ds-sw { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; align-items: start; }
+.ds-chip { position: relative; height: 84px; overflow: hidden; display: grid; place-items: center; border-radius: 4px; background: var(--washi);
+  box-shadow: inset 0 0 0 1px var(--ds-line); }
+.ds-chip .aa { position: relative; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 34px; line-height: 1; }
+.ds-chip .fill { position: absolute; inset: 0; }
+.ds-chip .bar { position: absolute; left: 12px; right: 12px; top: 50%; height: 0; border-top: 1px solid; }
+.ds-chip img.ds-plate { position: absolute; }
+.ds-sw strong { display: block; font-size: 13.5px; font-weight: 500; letter-spacing: .01em; }
+.ds-sw code { display: block; margin-top: 3px; font: 400 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); overflow-wrap: anywhere; }
+.ds-sw code.tok { color: var(--ds-mute); }
+.ds-sw p { margin-top: 4px; font-size: 12px; line-height: 1.5; color: rgba(37,28,22,.72); }
+.ds-fam { margin-bottom: 30px; }
+.ds-fam > strong { display: block; margin-bottom: 12px; font-size: 14px; font-weight: 500; }
+.ds-states { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+.ds-state { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ds-state small { font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: var(--ds-mute); }
+.ds-state code { font: 400 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); overflow-wrap: anywhere; }
+.ds-state .ds-chip { height: 72px; }
+
+/* backgrounds */
+.ds-window { position: relative; z-index: -1; height: min(62vh, 560px); border-radius: 4px; }
+.ds-window .ds-flag { position: absolute; left: 16px; bottom: 14px; }
+.ds-flag { display: inline-flex; align-items: center; gap: 10px; background: rgba(36,27,21,.82); color: var(--cream); padding: 8px 14px;
+  font-size: 10px; letter-spacing: .24em; text-transform: uppercase; border-radius: 9999px; }
+.ds-flag i { width: 6px; height: 6px; border-radius: 50%; background: var(--vermilion); display: inline-block; }
+/* scroll-pinned stages: a sticky box inside a taller track stands in for the page's ScrollTrigger pin */
+.ds-pin { position: relative; height: calc(var(--ds-bh) + 115vh); --ds-bh: min(66vh, 600px); }
+.ds-pin > .ds-sticky { position: sticky; top: calc((100vh - var(--ds-top) - var(--ds-bh)) / 2); height: var(--ds-bh); overflow: hidden; border-radius: 4px; }
+.ds-pin .ds-flag { position: absolute; left: 16px; top: 14px; z-index: 30; }
+.ds-grainbox { position: relative; height: 260px; overflow: hidden; border-radius: 4px; }
+
+/* icons */
+.ds-icons { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 36px 20px; }
+.ds-icon { display: flex; flex-direction: column; align-items: center; gap: 14px; min-width: 0; text-align: center; }
+.ds-icon .stage-i { height: 64px; display: grid; place-items: center; }
+.ds-icon code { font: 400 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); overflow-wrap: anywhere; }
+.ds-icon code i { display: block; font-style: normal; color: var(--ds-mute); }
+
+/* motion */
+.ds-ease { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; }
+.ds-ease > div { padding: 16px 0; border-top: 1px solid var(--ds-line); }
+.ds-ease strong { display: block; font-size: 13.5px; font-weight: 500; }
+.ds-ease code { display: block; margin-top: 4px; font: 400 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); overflow-wrap: anywhere; }
+.ds-ease p { margin-top: 6px; font-size: 12px; line-height: 1.5; color: rgba(37,28,22,.72); }
+
+/* per-specimen placements (source sizes kept; only page-level positions are released) */
+.ds-hdrbox { position: relative; overflow: hidden; border-radius: 4px; height: 150px; }
+.ds-hdrbox header { position: absolute !important; top: 0; left: 0; right: 0; z-index: 2 !important; }
+.ds-loaderbox { position: relative; height: 380px; overflow: hidden; border-radius: 4px; }
+.ds-loaderbox #ds-loader { position: absolute !important; inset: 0; z-index: 2 !important; }
+.ds-cursorbox { position: relative; height: 300px; overflow: hidden; border-radius: 4px; cursor: none; }
+.ds-cursorbox .ds-cur { position: absolute !important; }
+.ds-railbox { position: relative; height: 260px; display: flex; align-items: center; padding-left: 24px; }
+.ds-railbox > div { position: relative !important; transform: none !important; top: auto !important; left: auto !important; display: flex !important; }
+.ds-cardrow { display: flex; gap: 6vw; padding: 44px 6px 6px 24px; overflow: hidden; }
+.ds-cardrow .galCard { width: min(44%, 520px) !important; }
+.ds-gal { position: relative; }
+.ds-gal #ds-galTrack { overflow-x: auto; overflow-y: hidden; padding-top: 48px; }
+.ds-hero { position: relative; height: min(78vh, 700px); overflow: hidden; border-radius: 4px; }
+.ds-hero section { height: 100% !important; }
+.ds-sheet { position: relative; height: 300px; overflow: hidden; border-radius: 4px; }
+.ds-sheet > div.ds-sheet-top { position: absolute; left: 0; right: 0; bottom: 0; height: 58%; }
+.ds-magbox { position: relative; height: 240px; display: grid; place-items: center; border-radius: 4px; }
+.ds-footbox { position: relative; overflow: hidden; border-radius: 4px; box-shadow: inset 0 0 0 1px var(--ds-line); }
+.ds-footbox footer { padding-top: 96px !important; }
+.ds-media { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 28px; }
+.ds-media figure { margin: 0; min-width: 0; }
+.ds-media img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 4px; display: block; }
+.ds-media figcaption { margin-top: 10px; font: 400 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: rgba(37,28,22,.72); overflow-wrap: anywhere; }
+.ds-media figcaption b { display: block; font: 500 13px/1.4 'Space Grotesk', sans-serif; color: var(--ink); margin-bottom: 2px; }
+
+@media (max-width: 1439px) {
+  .ds-type { grid-template-columns: 160px minmax(0, 1fr); }
+  .ds-type .sizes { grid-column: 2; text-align: left; }
+}
+@media (max-width: 1100px) {
+  .ds-ease, .ds-3 { grid-template-columns: 1fr 1fr; }
+  .ds-cardrow .galCard { width: min(70%, 520px) !important; }
+}
+@media (max-width: 767px) {
+  body.is-components #view-components { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  #ds-side { flex-direction: row; align-items: center; gap: 4px; overflow-x: auto; overflow-y: hidden; padding: 10px 12px;
+    border-right: 0; border-bottom: 1px solid rgba(237,233,223,.14); scrollbar-width: none; }
+  #ds-side::-webkit-scrollbar { display: none; }
+  #ds-side .ds-lbl { display: none; }
+  #ds-side a { flex: 0 0 auto; padding: 8px 12px; white-space: nowrap; font-size: 12.5px; }
+  #ds-main { padding: 36px 16px 120px; }
+  .ds-group { padding-bottom: 84px; }
+  .ds-type { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ds-type .sizes { grid-column: auto; }
+  .ds-type .sample > .ds-box { padding: 20px 18px; }
+  .ds-colors, .ds-2, .ds-3, .ds-ease { grid-template-columns: minmax(0, 1fr); }
+  .ds-pad { padding: 22px 18px; }
+  .ds-window { height: 360px; }
+  .ds-pin { --ds-bh: 60vh; }
+  .ds-icons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ds-hdrbox { height: 120px; }
+  .ds-cardrow { padding-left: 16px; gap: 10vw; }
+  .ds-cardrow .galCard { width: 78% !important; flex: none; }
+  .ds-hero { height: 620px; }
+  .ds-cursorbox { height: 220px; }
+}
+</style>
+</head>
+<body class="antialiased overflow-x-hidden" style="--washi:#F1E9DE;--washi-warm:#ECE4D9;--washi-deep:#E4DED5;--sand:#E9D4BD;--river-stone:#C1BBB2;--ink:#251C16;--night:#241B15;--night-deep:#1A130E;--cream:#EDE9DF;--sakura:#E8B4C0;--sakura-deep:#D98E9F;--vermilion:#C4472F;--lantern:#E8A54B;background:var(--washi);color:var(--ink);font-family:'Space Grotesk',sans-serif">
+
+<!-- the Overview's own header (#nav); its link list becomes the two catalog views -->
+<header id="nav" class="fixed top-0 left-0 right-0 z-[90]">
+  <div class="nav-shell flex items-center justify-between px-6 md:px-12" style="height:88px">
+    <a href="#overview" id="ds-home" class="flex items-center gap-3" aria-label="Koisei Design System — Overview">
+      <svg width="22" height="17" viewBox="0 0 34 26" fill="none"><path d="M2 6 H32 M5 11 H29 M9 6 V25 M25 6 V25 M17 2 V6" stroke="#C4472F" stroke-width="2.4" stroke-linecap="round"></path></svg>
+      <span class="nav-ink text-sm" style="letter-spacing:.2em;font-weight:500;color:var(--ink)">KOISEI</span>
+    </a>
+    <nav class="flex items-center gap-6 md:gap-8" aria-label="Design system views">
+      <a id="nav-overview" href="#overview" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Overview</a>
+      <a id="nav-components" href="#components" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Components</a>
+      <span class="nav-ink text-sm hidden md:inline" style="font-family:'Noto Serif JP',serif;color:var(--ink)">旅</span>
+      <a id="ds-cta" href="#visit" class="nav-ink nav-border text-xs rounded-full px-5 py-2.5 transition-colors hover:!bg-[#251C16] hover:!text-[#F1E9DE] hidden md:inline-block" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;color:var(--ink)">Lorem</a>
+    </nav>
+  </div>
+</header>
+
+<iframe id="overview-frame" title="Overview" src="assets/overview/index.html"></iframe>
+
+<div id="view-components">
+<aside id="ds-side" aria-label="Component groups">
+  <p class="ds-lbl"><i></i>Components</p>
+  <a href="#components-typography"><b>01</b>Typography</a>
+  <a href="#components-colors"><b>02</b>Colors</a>
+  <a href="#components-backgrounds"><b>03</b>Backgrounds</a>
+  <a href="#components-surfaces"><b>04</b>Surfaces</a>
+  <a href="#components-icons"><b>05</b>Icons</a>
+  <a href="#components-motion"><b>06</b>Motion</a>
+  <a href="#components-actions"><b>07</b>Actions</a>
+  <a href="#components-navigation"><b>08</b>Navigation</a>
+  <a href="#components-feedback"><b>09</b>Feedback and status</a>
+  <a href="#components-cards"><b>10</b>Cards and containers</a>
+  <a href="#components-data"><b>11</b>Data display</a>
+  <a href="#components-content"><b>12</b>Content groups</a>
+  <a href="#components-media"><b>13</b>Media</a>
+</aside>
+
+<main id="ds-main">
+
+<!-- ============================================================ 01 typography -->
+<section class="ds-group" id="components-typography">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 01 · Foundations</p><h2>Typography</h2></div><p class="ds-src">Cormorant Garamond 400–500 · Space Grotesk 400–500 · Noto Serif JP 400</p></div>
+
+  <div class="ds-type">
+    <div><p class="role">Display</p><p class="face">Cormorant Garamond 500 · italic<code>#hero h1 .heroLine</code></p></div>
+    <div class="sample"><div class="ds-box text-center" style="padding:40px 24px"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-river-hero-plate-875acd7a5205_original.png" alt="">
+      <h1 class="tracking-tight relative" style="font-family:'Cormorant Garamond',serif;font-size:clamp(4rem,11vw,11.5rem);line-height:.95;letter-spacing:-.015em;color:var(--cream);text-shadow:0 2px 40px rgba(37,28,22,.35)">
+        <span class="block overflow-hidden"><span class="block" style="font-weight:500">Koisei</span></span>
+        <span class="block overflow-hidden"><span class="block" style="font-weight:500"><em>Design</em> System</span></span>
+      </h1></div></div>
+    <div class="sizes">clamp(4rem, 11vw, 11.5rem)<i>line-height .95 · tracking -.015em</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Heading 1</p><p class="face">Cormorant Garamond 400 · italic<code>h2.manifesto .mLine</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi">
+      <h2 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,5.6vw,6.2rem);line-height:1.08;letter-spacing:-.015em;font-weight:400;max-width:62ch">
+        <span class="block overflow-hidden"><span class="block">Lorem ipsum dolor, sit amet elit</span></span>
+        <span class="block overflow-hidden"><span class="block">do <em>eiusmod tempor</em> <span class="hidden md:inline-block align-middle overflow-hidden rounded-full mx-2" style="width:140px;height:70px"><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-koi-river-plate-742cc19de6b5_original.png" class="h-full w-[140px] object-cover" decoding="async" alt=""></span> ut labore</span></span>
+      </h2></div></div>
+    <div class="sizes">clamp(2.6rem, 5.6vw, 6.2rem)<i>line-height 1.08 · max-width 62ch</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Heading 2</p><p class="face">Cormorant Garamond 500 · italic<code>#gallery h2 · #nfTitle · #visit h2</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi">
+      <h2 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,5.5vw,6rem);line-height:1;letter-spacing:-.015em;font-weight:500">Lorem <em>ipsum</em>, dolor sit</h2></div></div>
+    <div class="sizes">clamp(2.6rem, 5.5vw, 6rem)<i>line-height 1 · 1.02 · 1.05</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Outline numeral</p><p class="face">Cormorant Garamond 400<code>.galNum · -webkit-text-stroke 1px</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi">
+      <span class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,9vw,9rem);line-height:1;-webkit-text-stroke:1px var(--ink);color:transparent;transition:color .5s">01</span></div></div>
+    <div class="sizes">clamp(5rem, 9vw, 9rem)<i>line-height 1 · fill transparent → ink</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Stat numeral</p><p class="face">Cormorant Garamond 500<code>#journey .counter</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi">
+      <div class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:500"><span>1,200</span> km</div></div></div>
+    <div class="sizes">clamp(2.5rem, 5vw, 4.5rem)</div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Heading 3 · chapter</p><p class="face">Cormorant Garamond 500 · italic<code>.filmSec .chapter h3</code></p></div>
+    <div class="sample"><div class="ds-box ds-night">
+      <h3 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--cream);font-weight:500;text-shadow:0 2px 30px rgba(26,19,14,.5)"><em>Lorem</em> ipsum dolor sit amet elit</h3></div></div>
+    <div class="sizes">clamp(2rem, 4vw, 3.5rem)<i>text-shadow 0 2px 30px</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Card title</p><p class="face">Cormorant Garamond 500<code>.galCard h3</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi">
+      <h3 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,3rem);font-weight:500">Lorem Ipsum</h3></div></div>
+    <div class="sizes">clamp(1.8rem, 3vw, 3rem)</div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Quote</p><p class="face">Cormorant Garamond italic 400 · Noto Serif JP 400<code>#film2 .quote p</code></p></div>
+    <div class="sample"><div class="ds-box ds-night">
+      <p class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,3vw,2.6rem);color:var(--cream);font-style:italic">"<span style="font-family:'Noto Serif JP',serif;font-style:normal">恋静</span> — lorem ipsum, dolor sit."</p></div></div>
+    <div class="sizes">clamp(1.6rem, 3vw, 2.6rem)</div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Wordmark</p><p class="face">Cormorant Garamond 500<code>#wordmark · fitWordmark()</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi" style="padding:18px 8px 0"><div class="overflow-hidden text-center">
+      <div class="ds-wordmark tracking-tight leading-none whitespace-nowrap" style="font-family:'Cormorant Garamond',serif;font-weight:500;letter-spacing:-.015em;color:var(--ink)">KOISEI</div></div></div></div>
+    <div class="sizes">max(3rem, innerWidth / 3.95)<i>set by script · leading-none</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Loader word</p><p class="face">Cormorant Garamond 400<code>#loaderWord</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi">
+      <div class="text-4xl md:text-5xl tracking-tight" style="font-family:'Cormorant Garamond',serif;letter-spacing:.02em;color:var(--ink)">KOISEI</div></div></div>
+    <div class="sizes">3rem | 2.25rem<i>md:text-5xl | text-4xl · tracking .5em → .02em</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Text 1 · body</p><p class="face">Space Grotesk 400<code>#journey p.leading-[1.7]</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi"><div style="max-width:34em">
+      <p class="leading-[1.7]" style="font-size:clamp(1rem,1.15vw,1.185rem);color:rgba(37,28,22,.78)">Lorem ipsum dolor sit amet — consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore. Ut enim ad minim veniam, quis nostrud exercitation, ullamco laboris nisi ut aliquip.</p></div></div></div>
+    <div class="sizes">clamp(1rem, 1.15vw, 1.185rem)<i>line-height 1.7 · max-width 34em</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Text 2</p><p class="face">Space Grotesk 400<code>.galCard p.text-sm</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi"><p class="text-sm" style="color:rgba(37,28,22,.65)">Lorem ipsum, dolor sit, amet elit.</p></div></div>
+    <div class="sizes">0.875rem<i>text-sm · line-height 1.25rem</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Brand label</p><p class="face">Space Grotesk 500<code>#nav .nav-ink.text-sm</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi"><span class="text-sm" style="letter-spacing:.2em;font-weight:500;color:var(--ink)">KOISEI</span></div></div>
+    <div class="sizes">0.875rem<i>text-sm · tracking .2em</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Link</p><p class="face">Space Grotesk 400<code>.u-link.text-xs</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi"><a href="#journey" class="u-link text-xs" style="letter-spacing:.12em;color:var(--ink)">Journey</a></div></div>
+    <div class="sizes">0.75rem<i>text-xs · tracking .12em</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Eyebrow</p><p class="face">Space Grotesk 400 · uppercase<code>p.text-xs.uppercase</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi">
+      <p class="text-xs uppercase flex items-center gap-3" style="letter-spacing:.32em;color:var(--ink)"><span class="inline-block w-1.5 h-1.5" style="background:var(--vermilion)"></span>— 01 · Lorem Ipsum</p></div></div>
+    <div class="sizes">0.75rem<i>text-xs · tracking .32em</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Meta · tabular</p><p class="face">Space Grotesk 400 · tabular-nums<code>#galCount · .filmTime</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi flex flex-wrap items-center gap-8">
+      <span class="text-xs tabular-nums" style="letter-spacing:.2em">01 — 03</span>
+      <span class="text-xs tabular-nums px-3 py-2 rounded" style="letter-spacing:.1em;color:rgba(237,233,223,.8);background:var(--night)">00:07 / 00:12</span></div></div>
+    <div class="sizes">0.75rem<i>tracking .2em · .1em</i></div>
+  </div>
+
+  <div class="ds-type">
+    <div><p class="role">Japanese vertical</p><p class="face">Noto Serif JP 400 · vertical-rl<code>#visit ありがとう · #hero 桜の川を下る</code></p></div>
+    <div class="sample"><div class="ds-box ds-washi flex items-start gap-12">
+      <span style="writing-mode:vertical-rl;font-family:'Noto Serif JP',serif;color:rgba(37,28,22,.5);letter-spacing:.4em">ありがとう</span>
+      <span class="text-sm" style="font-family:'Noto Serif JP',serif;color:var(--ink)">旅</span></div></div>
+    <div class="sizes">1rem | 0.875rem<i>inherited · text-sm · tracking .4em</i></div>
+  </div>
+  <p class="ds-note">The mirrored Noto Serif JP subsets carry only the glyphs the page sets, so these ornaments keep their original characters.</p>
+</section>
+
+<!-- ============================================================ 02 colors -->
+<section class="ds-group" id="components-colors">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 02 · Foundations</p><h2>Colors</h2></div><p class="ds-src">body tokens (inline style) + observed values</p></div>
+
+  <p class="ds-sub">Brand and Accent</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><div class="ds-chip"><span class="fill" style="background:var(--vermilion)"></span></div><div><strong>Vermilion accent</strong><code>#C4472F</code><code class="tok">--vermilion</code><p>Torii mark, eyebrow squares, rail fill, Begin disc, link underline</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><canvas class="ds-petal" width="64" height="64" style="width:64px;height:64px"></canvas></div><div><strong>Sakura petal</strong><code>#E8B4C0</code><code class="tok">--sakura</code><p>Petal texture fill (WebGL petals)</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="fill" style="background:rgba(217,142,159,.55)"></span></div><div><strong>Petal vein</strong><code>rgba(217, 142, 159, .55)</code><code class="tok">--sakura-deep @ .55</code><p>Inner stroke of the petal texture</p></div></div>
+    <div class="ds-sw"><div class="ds-chip" style="background:var(--night)"><span class="aa" style="color:var(--lantern);font-size:9px;letter-spacing:.32em;font-family:'Space Grotesk',sans-serif">— KOISEI</span></div><div><strong>Lantern</strong><code>#E8A54B</code><code class="tok">--lantern</code><p>Quote attribution; petal tint at nightfall (r .91 g .65 b .29)</p></div></div>
+  </div>
+
+  <p class="ds-sub">Surfaces</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><div class="ds-chip"><span class="fill" style="background:var(--washi)"></span></div><div><strong>Washi ground</strong><code>#F1E9DE</code><code class="tok">--washi</code><p>Body, preloader, journey, gallery and footer sections</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="fill" style="background:var(--night)"></span></div><div><strong>Night ground</strong><code>#241B15</code><code class="tok">--night</code><p>Scroll-film sections; nightfall end colour</p></div></div>
+    <div class="ds-sw"><div class="ds-chip" style="background:var(--night)"><span class="fill" style="background:var(--night-deep);opacity:.3"></span><span class="fill" style="left:50%;background:var(--night-deep)"></span></div><div><strong>Night deep</strong><code>#1A130E</code><code class="tok">--night-deep</code><p>Film II darkening layer (opacity 0 → .3)</p></div></div>
+  </div>
+
+  <p class="ds-sub">Text and Icons</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><div class="ds-chip"><span class="aa" style="color:var(--ink)">Aa</span></div><div><strong>Primary text</strong><code>#251C16</code><code class="tok">--ink</code><p>Headings, links, nav on washi</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="aa" style="color:rgba(37,28,22,.78)">Aa</span></div><div><strong>Body text</strong><code>rgba(37, 28, 22, .78)</code><p>Journey paragraph</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="aa" style="color:rgba(37,28,22,.65)">Aa</span></div><div><strong>Secondary text</strong><code>rgba(37, 28, 22, .65)</code><p>Station card descriptions</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="aa" style="color:rgba(37,28,22,.55)">Aa</span></div><div><strong>Muted label</strong><code>rgba(37, 28, 22, .55) · .5 · .6</code><p>Stat labels, rail index, footer bar · column heads, ( scroll ) · loader %</p></div></div>
+    <div class="ds-sw"><div class="ds-chip" style="background:var(--night)"><span class="aa" style="color:var(--cream)">Aa</span></div><div><strong>Cream text</strong><code>#EDE9DF</code><code class="tok">--cream</code><p>Hero title, chapter headings, nav in night state</p></div></div>
+    <div class="ds-sw"><div class="ds-chip" style="background:var(--night)"><span class="aa" style="color:rgba(237,233,223,.85)">Aa</span></div><div><strong>Cream secondary</strong><code>rgba(237, 233, 223, .85) · .8</code><p>Hero sub-line, chapter eyebrows · SCROLL, timecodes</p></div></div>
+    <div class="ds-sw"><div class="ds-chip" style="background:var(--night)"><span class="aa" style="color:rgba(237,233,223,.5)">Ⅰ</span></div><div><strong>Cream muted</strong><code>rgba(237, 233, 223, .6) · .5</code><p>Vertical 桜の川を下る · idle roman numerals</p></div></div>
+  </div>
+
+  <p class="ds-sub">Borders</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><div class="ds-chip"><span class="fill" style="inset:14px;border:1px solid rgba(37,28,22,.15);border-radius:4px"></span></div><div><strong>Frame line</strong><code>rgba(37, 28, 22, .15)</code><p>Station image frame, loader and gallery tracks</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="bar" style="border-color:rgba(37,28,22,.12)"></span></div><div><strong>Footer rule</strong><code>rgba(37, 28, 22, .12)</code><p>Footer bottom bar border-top</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="fill" style="inset:26px 12px;border:1px solid rgba(37,28,22,.4);border-radius:9999px"></span></div><div><strong>Pill outline</strong><code>rgba(37, 28, 22, .4)</code><p>Nav “Lorem” pill</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="fill" style="left:41px;right:auto;width:1px;background:rgba(37,28,22,.2)"></span></div><div><strong>Rail track</strong><code>rgba(37, 28, 22, .2)</code><p>Progress rail (160 × 1 px)</p></div></div>
+    <div class="ds-sw"><div class="ds-chip" style="background:var(--night)"><span class="fill" style="inset:26px 12px;border:1px solid rgba(237,233,223,.3);border-radius:9999px"></span></div><div><strong>Pill outline · night</strong><code>rgba(237, 233, 223, .3)</code><code class="tok">.nav--night .nav-border</code><p>Nav pill in night state</p></div></div>
+    <div class="ds-sw"><div class="ds-chip" style="background:var(--night)"><span class="bar" style="border-color:rgba(237,233,223,.25)"></span></div><div><strong>Cream track</strong><code>rgba(237, 233, 223, .25) · .35 · .7</code><p>Film progress track · scroll cue line · hero divider</p></div></div>
+  </div>
+
+  <p class="ds-sub">Interactive States</p>
+  <div class="ds-fam"><strong>Nav pill</strong><div class="ds-states">
+    <div class="ds-state"><small>Default</small><div class="ds-chip"><span class="text-xs rounded-full px-5 py-2.5" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;color:var(--ink)">Lorem</span></div><code>transparent · #251C16</code></div>
+    <div class="ds-state"><small>Hover</small><div class="ds-chip"><span class="text-xs rounded-full px-5 py-2.5" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;background:#251C16;color:#F1E9DE">Lorem</span></div><code>hover:!bg-[#251C16] · !text-[#F1E9DE]</code></div>
+  </div></div>
+  <div class="ds-fam"><strong>Underline link</strong><div class="ds-states">
+    <div class="ds-state"><small>Default</small><div class="ds-chip"><span class="text-xs" style="letter-spacing:.12em">Journey</span></div><code>::after scaleX(0)</code></div>
+    <div class="ds-state"><small>Hover</small><div class="ds-chip"><span class="text-xs" style="letter-spacing:.12em;position:relative;padding-bottom:3px;border-bottom:1px solid #C4472F">Journey</span></div><code>::after #C4472F · scaleX(1)</code></div>
+  </div></div>
+  <div class="ds-fam"><strong>Chapter numerals</strong><div class="ds-states">
+    <div class="ds-state"><small>Default</small><div class="ds-chip" style="background:var(--night)"><span class="aa" style="font-size:22px;color:rgba(237,233,223,.5)">Ⅱ</span></div><code>rgba(237, 233, 223, .5)</code></div>
+    <div class="ds-state"><small>Active</small><div class="ds-chip" style="background:var(--night)"><span class="aa" style="font-size:22px;color:#C4472F">Ⅱ</span></div><code>#C4472F</code></div>
+  </div></div>
+  <div class="ds-fam"><strong>Station numeral</strong><div class="ds-states">
+    <div class="ds-state"><small>Default</small><div class="ds-chip"><span class="aa" style="font-size:44px;font-weight:400;-webkit-text-stroke:1px var(--ink);color:transparent">01</span></div><code>transparent · stroke --ink</code></div>
+    <div class="ds-state"><small>Active</small><div class="ds-chip"><span class="aa" style="font-size:44px;font-weight:400;-webkit-text-stroke:1px var(--ink);color:#251C16">01</span></div><code>#251C16 (card at centre)</code></div>
+  </div></div>
+  <div class="ds-fam"><strong>Text selection</strong><div class="ds-states">
+    <div class="ds-state"><small>Selected</small><div class="ds-chip"><span class="aa" style="font-size:24px;background:#C4472F;color:#F1E9DE;padding:2px 6px">Aa</span></div><code>::selection #C4472F / #F1E9DE</code></div>
+  </div></div>
+
+  <p class="ds-sub">Overlays</p>
+  <div class="ds-colors">
+    <div class="ds-sw"><div class="ds-chip"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kyoto-temple-canal-plate-60699d609a45_original.png" alt=""><span class="fill" style="top:22px;bottom:22px;background:rgba(241,233,222,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)"></span></div><div><strong>Washi glass</strong><code>rgba(241, 233, 222, .82) · blur(12px)</code><code class="tok">.nav--scrolled .nav-shell</code><p>Header after 120 px of scroll</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kyoto-temple-canal-plate-60699d609a45_original.png" alt=""><span class="fill" style="top:22px;bottom:22px;background:rgba(36,27,21,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)"></span></div><div><strong>Night glass</strong><code>rgba(36, 27, 21, .82)</code><code class="tok">.nav--night .nav-shell</code><p>Header from nightfall to the footer</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/rural-kimono-lane-plate-edb1d9bf1d3d_original.png" alt=""><span class="fill" style="box-shadow:inset 0 0 18vmin rgba(26,19,14,.75)"></span></div><div><strong>Film vignette</strong><code>inset 0 0 18vmin rgba(26, 19, 14, .75) · .8</code><p>Edge shade over both scroll films</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><span class="fill" style="background:radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(37,28,22,.03) 100%)"></span></div><div><strong>Paper vignette</strong><code>radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(37, 28, 22, .03) 100%)</code><p>Journey and footer sections</p></div></div>
+    <div class="ds-sw"><div class="ds-chip"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-river-hero-plate-875acd7a5205_original.png" alt=""><span class="aa" style="color:var(--cream);text-shadow:0 2px 40px rgba(37,28,22,.35)">Aa</span></div><div><strong>Title shadow</strong><code>0 2px 40px rgba(37, 28, 22, .35)</code><p>Hero title and nightfall title; chapters use rgba(26, 19, 14, .5 | .6)</p></div></div>
+    <div class="ds-sw"><div class="ds-chip" style="background:var(--night)"><span class="fill" style="background:#fff;mix-blend-mode:difference;inset:30px;border-radius:50%"></span></div><div><strong>Cursor ink</strong><code>#fff · mix-blend-mode: difference</code><code class="tok">#curDot · #curRing</code><p>Custom cursor dot and ring</p></div></div>
+  </div>
+</section>
+
+<!-- ============================================================ 03 backgrounds -->
+<section class="ds-group" id="components-backgrounds">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 03 · Foundations</p><h2>Backgrounds</h2></div><p class="ds-src">WebGL stage · dissolve · scroll films · washi · grain</p></div>
+
+  <div class="ds-spec">
+    <h3>Hero stage</h3>
+    <div class="ds-window" id="ds-window"><span class="ds-flag"><i></i>Live · the Overview's own stage</span></div>
+    <code class="ds-meta"><b>canvas#gl</b> fixed · z-index 5 · three r160 WebGLRenderer (alpha) · ShaderMaterial on a cover-fit plane (sakura-river-hero-plate) · InstancedMesh petals 380 | 120 · <b>canvas#grain</b> z-index 80</code>
+    <p class="ds-note">This window looks straight through to the Overview, which runs as the background of this whole view. The plate's lower 38% ripples (<code>sin(vUv.y*40.+uTime*1.2)*.0015</code>), a pointer move sends a ring wave (<code>exp(-d*9.)*exp(-uWaveT*1.2)</code>) and petals fall, sway and scatter from the pointer (radius 180 px). The scrim lifts while this window is on screen.</p>
+  </div>
+
+  <div class="ds-spec">
+    <h3>Day → night dissolve</h3>
+    <div class="ds-pin" id="ds-nfPin"><div class="ds-sticky">
+      <section id="ds-nightfall" class="relative overflow-hidden flex items-center justify-center" style="height:100%;background:var(--washi)">
+        <div id="ds-dissolveWrap" class="absolute inset-0" style="clip-path:inset(11% 24%);will-change:clip-path"><canvas id="ds-dissolve" class="w-full h-full block"></canvas></div>
+        <div class="relative z-10 text-center px-6 pointer-events-none">
+          <p id="ds-nfKicker" class="text-xs uppercase mb-5" style="letter-spacing:.32em;color:var(--ink);opacity:0">— 03 · Amet Elit</p>
+          <h2 id="ds-nfTitle" class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,5.5vw,6rem);line-height:1.05;letter-spacing:-.015em;font-weight:500;color:var(--ink);opacity:0;text-shadow:0 2px 40px rgba(26,19,14,.35)">Lorem ipsum dolor sit —<br>amet <em>elit</em></h2>
+        </div>
+      </section>
+      <span class="ds-flag"><i></i>Scroll to scrub</span>
+    </div></div>
+    <code class="ds-meta"><b>#nightfall</b> pinned +=200% · <b>#dissolveWrap</b> clip-path inset(11vh 24vw) → inset(0) · <b>canvas#dissolve</b> fbm noise mix asakusa-lantern-water → night-river-lantern (uP 0 → 1) · washi → --night</code>
+    <p class="ds-note">The page's own timeline and shader; the sticky box stands in for its ScrollTrigger pin, so the clip opens, the ground turns to night and the plates dissolve as this view scrolls.</p>
+  </div>
+
+  <div class="ds-spec">
+    <h3>Scroll film I</h3>
+    <div class="ds-pin" id="ds-film1Pin"><div class="ds-sticky">
+      <section class="filmSec relative overflow-hidden" data-ds-film="1" style="height:100%;background:var(--night)">
+        <video class="filmVid absolute inset-0 w-full h-full object-cover" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/koi-bridge-temple-scroll-film-12s-ce0df14b7596_video.mp4" muted="" playsinline="" preload="auto"></video>
+        <div class="pointer-events-none absolute inset-0" style="box-shadow:inset 0 0 18vmin rgba(26,19,14,.75)"></div>
+        <div class="chapter absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-0">
+          <p class="text-xs uppercase mb-4" style="letter-spacing:.32em;color:rgba(237,233,223,.85)">Lorem Ipsum</p>
+          <h3 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--cream);font-weight:500;text-shadow:0 2px 30px rgba(26,19,14,.5)"><em>Lorem</em> ipsum dolor sit amet elit</h3>
+        </div>
+        <div class="chapter absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-0">
+          <p class="text-xs uppercase mb-4" style="letter-spacing:.32em;color:rgba(237,233,223,.85)">Dolor Sit Amet</p>
+          <h3 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--cream);font-weight:500;text-shadow:0 2px 30px rgba(26,19,14,.5)">Consectetur adipiscing <em>tempor</em> elit</h3>
+        </div>
+        <div class="chapter absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-0">
+          <p class="text-xs uppercase mb-4" style="letter-spacing:.32em;color:rgba(237,233,223,.85)">Sed Do Eiusmod</p>
+          <h3 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--cream);font-weight:500;text-shadow:0 2px 30px rgba(26,19,14,.5)">Ut labore et dolore magna <em>aliqua</em></h3>
+        </div>
+        <div class="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-4 text-sm" style="font-family:'Cormorant Garamond',serif">
+          <span class="romNum" style="color:rgba(237,233,223,.5)">Ⅰ</span><span class="romNum" style="color:rgba(237,233,223,.5)">Ⅱ</span><span class="romNum" style="color:rgba(237,233,223,.5)">Ⅲ</span>
+        </div>
+        <div class="absolute bottom-8 left-6 md:left-12 right-6 md:right-12 flex items-center gap-4">
+          <div class="relative flex-1 h-px" style="background:rgba(237,233,223,.25)"><div class="filmBar absolute inset-0 origin-left" style="background:var(--cream);transform:scaleX(0)"></div></div>
+          <span class="filmTime text-xs tabular-nums" style="letter-spacing:.1em;color:rgba(237,233,223,.8)">00:00 / 00:12</span>
+        </div>
+      </section>
+      <span class="ds-flag"><i></i>Scroll to scrub</span>
+    </div></div>
+    <code class="ds-meta"><b>section.filmSec#film1</b> pinned +=400% | 250% · <b>video.filmVid</b> currentTime = eased progress × duration (lerp .1) · three chapters at 5–30 / 38–63 / 70–95 · roman numerals → #C4472F</code>
+  </div>
+
+  <div class="ds-spec">
+    <h3>Scroll film II</h3>
+    <div class="ds-pin" id="ds-film2Pin"><div class="ds-sticky">
+      <section class="filmSec relative overflow-hidden" data-ds-film="2" style="height:100%;background:var(--night)">
+        <video class="filmVid absolute inset-0 w-full h-full object-cover" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kimono-asakusa-night-scroll-film-12s-bd5434347f42_video.mp4" muted="" playsinline="" preload="auto"></video>
+        <div class="filmDark absolute inset-0 pointer-events-none" style="background:var(--night-deep);opacity:0"></div>
+        <div class="pointer-events-none absolute inset-0" style="box-shadow:inset 0 0 18vmin rgba(26,19,14,.8)"></div>
+        <div class="chapter absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-0">
+          <p class="text-xs uppercase mb-4" style="letter-spacing:.32em;color:rgba(237,233,223,.85)">Lorem Ipsum</p>
+          <h3 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--cream);font-weight:500;text-shadow:0 2px 30px rgba(26,19,14,.6)">Dolor sit amet consectetur <em>elit</em></h3>
+        </div>
+        <div class="chapter absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-0">
+          <p class="text-xs uppercase mb-4" style="letter-spacing:.32em;color:rgba(237,233,223,.85)">Sed Do Eiusmod</p>
+          <h3 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,4vw,3.5rem);color:var(--cream);font-weight:500;text-shadow:0 2px 30px rgba(26,19,14,.6)">Tempor ut labore <em>dolore</em> magna aliqua</h3>
+        </div>
+        <div class="quote absolute inset-0 flex flex-col items-center justify-center text-center px-6 opacity-0">
+          <p class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,3vw,2.6rem);color:var(--cream);font-style:italic">"<span style="font-family:'Noto Serif JP',serif;font-style:normal">恋静</span> — lorem ipsum, dolor sit."</p>
+          <p class="mt-4 text-xs uppercase" style="letter-spacing:.32em;color:var(--lantern)">— Koisei</p>
+        </div>
+        <div class="absolute bottom-8 left-6 md:left-12 right-6 md:right-12 flex items-center gap-4">
+          <div class="relative flex-1 h-px" style="background:rgba(237,233,223,.25)"><div class="filmBar absolute inset-0 origin-left" style="background:var(--cream);transform:scaleX(0)"></div></div>
+          <span class="filmTime text-xs tabular-nums" style="letter-spacing:.1em;color:rgba(237,233,223,.8)">00:00 / 00:12</span>
+        </div>
+      </section>
+      <span class="ds-flag"><i></i>Scroll to scrub</span>
+    </div></div>
+    <code class="ds-meta"><b>section.filmSec#film2</b> pinned +=350% | 250% · <b>.filmDark</b> --night-deep 0 → .3 at 82 · <b>.quote</b> in at 85 · vignette .8</code>
+  </div>
+
+  <div class="ds-2">
+    <div class="ds-spec">
+      <h3>Washi paper</h3>
+      <div class="ds-box ds-washi" style="height:260px"><div class="pointer-events-none absolute inset-0" style="background:radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(37,28,22,.03) 100%)"></div></div>
+      <code class="ds-meta"><b>#journey · #visit</b> background var(--washi) + radial vignette</code>
+    </div>
+    <div class="ds-spec">
+      <h3>Film grain</h3>
+      <div class="ds-grainbox ds-washi"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-koi-river-plate-742cc19de6b5_original.png" alt="" style="width:50%;left:50%">
+        <canvas class="ds-grain absolute inset-0 w-full h-full pointer-events-none" style="z-index:80;opacity:.05;mix-blend-mode:overlay"></canvas></div>
+      <code class="ds-meta"><b>canvas#grain</b> 180 × 180 random luma, redrawn every 2nd frame · opacity .05 · mix-blend overlay · z-index 80</code>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 04 surfaces -->
+<section class="ds-group" id="components-surfaces">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 04 · Foundations</p><h2>Surfaces</h2></div><p class="ds-src">sheet · capsule · plate frame</p></div>
+
+  <div class="ds-spec">
+    <h3>Washi sheet</h3>
+    <div class="ds-sheet"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-river-hero-plate-875acd7a5205_original.png" alt="">
+      <div class="ds-sheet-top rounded-t-[32px]" id="ds-sheet" style="background:var(--washi)"><div class="pointer-events-none absolute inset-0" style="background:radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(37,28,22,.03) 100%)"></div>
+        <p class="relative text-xs uppercase flex items-center gap-3" style="letter-spacing:.32em;color:var(--ink);padding:40px 36px 0"><span class="inline-block w-1.5 h-1.5" style="background:var(--vermilion)"></span>— 01 · Lorem Ipsum</p></div></div>
+    <code class="ds-meta"><b>section#journey.rounded-t-[32px]</b> z-index 20 · slides over the pinned hero · top radius 32 → 0 scrubbed from “top 60%” to “top top”</code>
+  </div>
+
+  <div class="ds-2">
+    <div class="ds-spec">
+      <h3>Image capsule</h3>
+      <div class="ds-box ds-washi ds-pad flex items-center" style="min-height:160px">
+        <span class="inline-block align-middle overflow-hidden rounded-full mx-2" style="width:140px;height:70px"><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kyoto-temple-canal-plate-60699d609a45_original.png" class="h-full w-[140px] object-cover" decoding="async" alt=""></span></div>
+      <code class="ds-meta"><b>.mImg</b> inline-block · rounded-full · 70 px high · width 0 → 140 px (md and up)</code>
+    </div>
+    <div class="ds-spec">
+      <h3>Plate frame</h3>
+      <div class="relative overflow-hidden rounded" style="height:240px"><div class="absolute -inset-[10px] border pointer-events-none z-10 rounded" style="border-color:rgba(37,28,22,.15)"></div>
+        <img class="w-full h-full object-cover will-change-transform" style="transform:scale(1.15)" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/rural-kimono-lane-plate-edb1d9bf1d3d_original.png" decoding="async" alt=""></div>
+      <code class="ds-meta"><b>.galCard .relative.h-[46vh].md:h-[54vh].overflow-hidden.rounded</b> · img scale(1.15) · the -10 px frame line sits outside the clip, as on the page</code>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 05 icons -->
+<section class="ds-group" id="components-icons">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 05 · Foundations</p><h2>Icons</h2></div><p class="ds-src">inline SVG · iconify solar · glyphs</p></div>
+  <div class="ds-icons">
+    <div class="ds-icon"><div class="stage-i"><svg width="34" height="26" viewBox="0 0 34 26" fill="none"><path d="M2 6 H32 M5 11 H29 M9 6 V25 M25 6 V25 M17 2 V6" stroke="#C4472F" stroke-width="2.2" stroke-linecap="round"></path></svg></div><code>torii mark<i>#loader svg · 34 × 26 · stroke 2.2</i></code></div>
+    <div class="ds-icon"><div class="stage-i"><svg width="22" height="17" viewBox="0 0 34 26" fill="none"><path d="M2 6 H32 M5 11 H29 M9 6 V25 M25 6 V25 M17 2 V6" stroke="#C4472F" stroke-width="2.4" stroke-linecap="round"></path></svg></div><code>torii mark<i>#nav a svg · 22 × 17 · stroke 2.4</i></code></div>
+    <div class="ds-icon"><div class="stage-i" style="color:var(--ink)"><iconify-icon icon="solar:hamburger-menu-linear" width="24" stroke-width="1.5"></iconify-icon></div><code>solar:hamburger-menu-linear<i>mobile nav button · 24</i></code></div>
+    <div class="ds-icon"><div class="stage-i" style="color:var(--ink)"><iconify-icon icon="solar:arrow-right-linear" width="16" stroke-width="1.5"></iconify-icon></div><code>solar:arrow-right-linear<i>text link · 16</i></code></div>
+    <div class="ds-icon"><div class="stage-i" style="color:var(--ink)"><iconify-icon icon="solar:arrow-right-linear" width="14" stroke-width="1.5"></iconify-icon></div><code>solar:arrow-right-linear<i>station link · 14</i></code></div>
+    <div class="ds-icon"><div class="stage-i"><span class="w-11 h-11 rounded-full flex items-center justify-center" style="background:var(--vermilion);color:var(--washi)"><iconify-icon icon="solar:arrow-right-linear" width="18" stroke-width="1.5"></iconify-icon></span></div><code>solar:arrow-right-linear<i>#magnet · 18 · --washi</i></code></div>
+    <div class="ds-icon"><div class="stage-i"><span class="inline-block w-1.5 h-1.5" style="background:var(--vermilion)"></span></div><code>square bullet<i>eyebrow span.w-1.5.h-1.5</i></code></div>
+    <div class="ds-icon"><div class="stage-i"><span class="flex gap-4 text-sm px-4 py-3 rounded" style="font-family:'Cormorant Garamond',serif;background:var(--night)"><span style="color:#C4472F">Ⅰ</span><span style="color:rgba(237,233,223,.5)">Ⅱ</span><span style="color:rgba(237,233,223,.5)">Ⅲ</span></span></div><code>roman numerals<i>.romNum · active #C4472F</i></code></div>
+  </div>
+</section>
+
+<!-- ============================================================ 06 motion -->
+<section class="ds-group" id="components-motion">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 06 · Foundations</p><h2>Motion</h2></div><p class="ds-src">GSAP 3.12.5 · ScrollTrigger · Lenis 1.0.42</p></div>
+  <div class="ds-ease">
+    <div><strong>UI ease</strong><code>cubic-bezier(.22, 1, .36, 1)</code><p>Nav shell .5s, link underline .35s</p></div>
+    <div><strong>Line reveal</strong><code>power4.out · 1.1s · stagger .12 | .09</code><p>Hero and manifesto lines from yPercent 110, rotate 2 | 1.5; wordmark rise 1.3s</p></div>
+    <div><strong>Open / close</strong><code>power4.inOut · 1.2s | .9s</code><p>Capsule width 0 → 140; preloader clip exit</p></div>
+    <div><strong>Settle</strong><code>power2.out · 1.6s | 2.4s | 1.4s</code><p>Counters; hero plane scale 1.12 → 1; loader to 88%</p></div>
+    <div><strong>Letter-spacing</strong><code>power3.out · 1.2s</code><p>Loader word .5em → .02em</p></div>
+    <div><strong>Magnet release</strong><code>elastic.out(1, 0.4) · .8s</code><p>Follow at .3 × offset over .4s, spring back on leave</p></div>
+    <div><strong>Scroll</strong><code>Lenis lerp .08 · scrub 1</code><p>Smooth scroll feeding ScrollTrigger pins and scrubs</p></div>
+    <div><strong>Scroll cue</strong><code>@keyframes scrollDot 1.8s ease-in-out infinite</code><p>Dot travels 34 px down the cue line</p></div>
+    <div><strong>Reduced motion</strong><code>prefers-reduced-motion: reduce</code><p>Animations and transitions off; no Lenis, pins or petals</p></div>
+  </div>
+
+  <div class="ds-spec" style="margin-top:56px">
+    <h3>Manifesto reveal</h3>
+    <div class="ds-box ds-washi ds-pad" id="ds-mani">
+      <h2 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,5.6vw,6.2rem);line-height:1.08;letter-spacing:-.015em;font-weight:400;max-width:62ch">
+        <span class="mLine block overflow-hidden"><span class="block">Lorem ipsum dolor, sit amet elit</span></span>
+        <span class="mLine block overflow-hidden"><span class="block">do <em>eiusmod tempor</em> <span class="mImg hidden md:inline-block align-middle overflow-hidden rounded-full mx-2" style="width:0;height:70px"><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-koi-river-plate-742cc19de6b5_original.png" class="h-full w-[140px] object-cover" decoding="async" alt=""></span> ut labore</span></span>
+        <span class="mLine block overflow-hidden"><span class="block">et dolore magna aliqua — ut</span></span>
+        <span class="mLine block overflow-hidden"><span class="block">enim minim <span class="mImg hidden md:inline-block align-middle overflow-hidden rounded-full mx-2" style="width:0;height:70px"><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kyoto-temple-canal-plate-60699d609a45_original.png" class="h-full w-[140px] object-cover" decoding="async" alt=""></span> <em>veniam</em></span></span>
+        <span class="mLine block overflow-hidden"><span class="block">quis nostrud exercit.</span></span>
+      </h2>
+    </div>
+    <button class="ds-btn" type="button" data-ds-replay="mani">Replay ↻</button>
+    <code class="ds-meta"><b>.mLine &gt; span</b> yPercent 110, rotate 1.5 → 0 · 1.1s power4.out · delay i × .09 · <b>.mImg</b> width → 140 · 1.2s power4.inOut · trigger “top 70%”, reverses on the way back</code>
+  </div>
+
+  <div class="ds-spec">
+    <h3>Wordmark rise</h3>
+    <div class="ds-box ds-washi" style="padding-top:24px"><div class="overflow-hidden px-2 text-center">
+      <div id="ds-wordmark" class="ds-wordmark tracking-tight leading-none whitespace-nowrap" style="font-family:'Cormorant Garamond',serif;font-weight:500;letter-spacing:-.015em;color:var(--ink);transform:translateY(110%)">KOISEI</div></div></div>
+    <button class="ds-btn" type="button" data-ds-replay="word">Replay ↻</button>
+    <code class="ds-meta"><b>#wordmark</b> translateY(110%) → 0 · 1.3s power4.out · trigger #visit “top 30%”</code>
+  </div>
+</section>
+
+<!-- ============================================================ 07 actions -->
+<section class="ds-group" id="components-actions">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 07 · Components</p><h2>Actions</h2></div><p class="ds-src">links · pill · disc · menu button</p></div>
+
+  <div class="ds-spec">
+    <h3>Underline links</h3>
+    <div class="ds-box ds-washi ds-pad"><div class="ds-row">
+      <div class="ds-cell"><small>Text link</small><a href="#stories" class="u-link inline-flex items-center gap-2 text-xs" style="letter-spacing:.12em">Lorem ipsum dolor sit amet <iconify-icon icon="solar:arrow-right-linear" width="16" stroke-width="1.5"></iconify-icon></a></div>
+      <div class="ds-cell"><small>Station link</small><a href="#visit" class="u-link inline-flex items-center gap-2 text-xs" style="letter-spacing:.12em">Lorem ipsum <iconify-icon icon="solar:arrow-right-linear" width="14" stroke-width="1.5"></iconify-icon></a></div>
+      <div class="ds-cell"><small>Nav / footer link</small><a href="#journey" class="u-link text-xs" style="letter-spacing:.12em;color:var(--ink)">Journey</a></div>
+    </div></div>
+    <code class="ds-meta"><b>.u-link</b> ::after 1 px #C4472F at -3 px · scaleX(0 → 1) from the left · .35s cubic-bezier(.22,1,.36,1) on hover</code>
+  </div>
+
+  <div class="ds-2">
+    <div class="ds-spec">
+      <h3>Nav pill</h3>
+      <div class="ds-box ds-washi ds-pad"><div class="ds-row">
+        <div class="ds-cell"><small>Washi</small><a href="#visit" class="nav-ink nav-border text-xs rounded-full px-5 py-2.5 transition-colors hover:!bg-[#251C16] hover:!text-[#F1E9DE]" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;color:var(--ink)">Lorem</a></div>
+        <div class="ds-cell nav--night rounded px-5 py-4" style="background:var(--night)"><small style="color:rgba(237,233,223,.6)">.nav--night</small><a href="#visit" class="nav-ink nav-border text-xs rounded-full px-5 py-2.5 transition-colors hover:!bg-[#251C16] hover:!text-[#F1E9DE]" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;color:var(--ink)">Lorem</a></div>
+      </div></div>
+      <code class="ds-meta"><b>#nav a.rounded-full.px-5.py-2.5</b> · hover:!bg-[#251C16] hover:!text-[#F1E9DE] · night: cream ink, rgba(237,233,223,.3) border</code>
+    </div>
+    <div class="ds-spec">
+      <h3>Begin disc</h3>
+      <div class="ds-magbox ds-washi">
+        <a id="ds-magnet" href="#" class="shrink-0 w-[120px] h-[120px] rounded-full flex flex-col items-center justify-center gap-1 will-change-transform" style="background:var(--vermilion);color:var(--washi)">
+          <span class="text-sm" style="letter-spacing:.08em">Lorem</span>
+          <iconify-icon icon="solar:arrow-right-linear" width="18" stroke-width="1.5"></iconify-icon>
+        </a></div>
+      <code class="ds-meta"><b>#magnet</b> 120 × 120 · --vermilion / --washi · magnetic: follows the pointer at .3 × offset, elastic.out(1, 0.4) on leave (desktop)</code>
+    </div>
+  </div>
+
+  <div class="ds-spec">
+    <h3>Menu button</h3>
+    <div class="ds-box ds-washi ds-pad"><button class="nav-ink" type="button" style="color:var(--ink)"><iconify-icon icon="solar:hamburger-menu-linear" width="24" stroke-width="1.5"></iconify-icon></button></div>
+    <code class="ds-meta"><b>#nav button.md:hidden.nav-ink</b> · shown under 768 px in place of the link list</code>
+  </div>
+</section>
+
+<!-- ============================================================ 08 navigation -->
+<section class="ds-group" id="components-navigation">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 08 · Components</p><h2>Navigation</h2></div><p class="ds-src">header states · progress rail · footer columns</p></div>
+  <p class="ds-sub">Header · top of page | .nav--scrolled | .nav--night</p>
+  <div class="ds-spec" style="display:grid;gap:18px">
+    <div class="ds-hdrbox"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-river-hero-plate-875acd7a5205_original.png" alt="">
+      <header class="ds-hdr"><div class="nav-shell flex items-center justify-between px-6 md:px-12" style="height:88px">
+        <a href="#" class="flex items-center gap-3"><svg width="22" height="17" viewBox="0 0 34 26" fill="none"><path d="M2 6 H32 M5 11 H29 M9 6 V25 M25 6 V25 M17 2 V6" stroke="#C4472F" stroke-width="2.4" stroke-linecap="round"></path></svg><span class="nav-ink text-sm" style="letter-spacing:.2em;font-weight:500;color:var(--ink)">KOISEI</span></a>
+        <nav class="hidden md:flex items-center gap-8"><a href="#journey" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Journey</a><a href="#stories" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Stories</a><a href="#gallery" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Gallery</a><a href="#visit" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Visit</a><span class="nav-ink text-sm" style="font-family:'Noto Serif JP',serif;color:var(--ink)">旅</span><a href="#visit" class="nav-ink nav-border text-xs rounded-full px-5 py-2.5 transition-colors hover:!bg-[#251C16] hover:!text-[#F1E9DE]" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;color:var(--ink)">Lorem</a></nav>
+        <button class="md:hidden nav-ink" type="button" style="color:var(--ink)"><iconify-icon icon="solar:hamburger-menu-linear" width="24" stroke-width="1.5"></iconify-icon></button>
+      </div></header></div>
+    <div class="ds-hdrbox"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kyoto-temple-canal-plate-60699d609a45_original.png" alt="">
+      <header class="ds-hdr nav--scrolled"><div class="nav-shell flex items-center justify-between px-6 md:px-12" style="height:88px">
+        <a href="#" class="flex items-center gap-3"><svg width="22" height="17" viewBox="0 0 34 26" fill="none"><path d="M2 6 H32 M5 11 H29 M9 6 V25 M25 6 V25 M17 2 V6" stroke="#C4472F" stroke-width="2.4" stroke-linecap="round"></path></svg><span class="nav-ink text-sm" style="letter-spacing:.2em;font-weight:500;color:var(--ink)">KOISEI</span></a>
+        <nav class="hidden md:flex items-center gap-8"><a href="#journey" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Journey</a><a href="#stories" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Stories</a><a href="#gallery" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Gallery</a><a href="#visit" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Visit</a><span class="nav-ink text-sm" style="font-family:'Noto Serif JP',serif;color:var(--ink)">旅</span><a href="#visit" class="nav-ink nav-border text-xs rounded-full px-5 py-2.5 transition-colors hover:!bg-[#251C16] hover:!text-[#F1E9DE]" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;color:var(--ink)">Lorem</a></nav>
+        <button class="md:hidden nav-ink" type="button" style="color:var(--ink)"><iconify-icon icon="solar:hamburger-menu-linear" width="24" stroke-width="1.5"></iconify-icon></button>
+      </div></header></div>
+    <div class="ds-hdrbox"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/night-river-lantern-plate-510dc7d4315d_original.png" alt="">
+      <header class="ds-hdr nav--scrolled nav--night"><div class="nav-shell flex items-center justify-between px-6 md:px-12" style="height:88px">
+        <a href="#" class="flex items-center gap-3"><svg width="22" height="17" viewBox="0 0 34 26" fill="none"><path d="M2 6 H32 M5 11 H29 M9 6 V25 M25 6 V25 M17 2 V6" stroke="#C4472F" stroke-width="2.4" stroke-linecap="round"></path></svg><span class="nav-ink text-sm" style="letter-spacing:.2em;font-weight:500;color:var(--ink)">KOISEI</span></a>
+        <nav class="hidden md:flex items-center gap-8"><a href="#journey" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Journey</a><a href="#stories" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Stories</a><a href="#gallery" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Gallery</a><a href="#visit" class="u-link nav-ink text-xs" style="letter-spacing:.12em;color:var(--ink)">Visit</a><span class="nav-ink text-sm" style="font-family:'Noto Serif JP',serif;color:var(--ink)">旅</span><a href="#visit" class="nav-ink nav-border text-xs rounded-full px-5 py-2.5 transition-colors hover:!bg-[#251C16] hover:!text-[#F1E9DE]" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;color:var(--ink)">Lorem</a></nav>
+        <button class="md:hidden nav-ink" type="button" style="color:var(--ink)"><iconify-icon icon="solar:hamburger-menu-linear" width="24" stroke-width="1.5"></iconify-icon></button>
+      </div></header></div>
+    <code class="ds-meta"><b>header#nav</b> fixed · z-[90] · <b>.nav--scrolled</b> after 120 px (washi glass) · <b>.nav--night</b> from #nightfall “top 40%” to #visit “top 60%” (night glass, cream ink) · the inline 88 px height outranks the 68 px rule, as on the page</code>
+  </div>
+
+  <div class="ds-2">
+    <div class="ds-spec">
+      <h3>Progress rail</h3>
+      <div class="ds-railbox ds-box ds-washi"><div class="flex flex-col items-center gap-4 pointer-events-none">
+        <div class="relative" style="height:160px;width:1px;background:rgba(37,28,22,.2)"><div id="ds-railFill" class="absolute top-0 left-0 w-full origin-top" style="background:var(--vermilion);height:100%;transform:scaleY(0)"></div></div>
+        <div id="ds-secIdx" class="text-xs" style="letter-spacing:.15em;writing-mode:vertical-rl;color:rgba(37,28,22,.55)">01 / 13</div></div></div>
+      <code class="ds-meta"><b>fixed left-6 · hidden lg:flex</b> · #railFill scaleY(page progress) · #secIdx “0N / 07” per section — here driven by this view's scroll and groups</code>
+    </div>
+    <div class="ds-spec">
+      <h3>Footer columns</h3>
+      <div class="ds-box ds-washi ds-pad"><div class="grid grid-cols-2 md:grid-cols-4 gap-10 relative">
+        <div class="flex flex-col gap-3 text-xs" style="letter-spacing:.12em"><span class="uppercase mb-2" style="letter-spacing:.32em;color:rgba(37,28,22,.5)">Explore</span><a href="#journey" class="u-link w-fit">Journey</a><a href="#" class="u-link w-fit">Stories</a><a href="#gallery" class="u-link w-fit">Gallery</a><a href="#" class="u-link w-fit">Visit</a></div>
+        <div class="flex flex-col gap-3 text-xs" style="letter-spacing:.12em"><span class="uppercase mb-2" style="letter-spacing:.32em;color:rgba(37,28,22,.5)">Elsewhere</span><a href="#" class="u-link w-fit">Instagram</a><a href="#" class="u-link w-fit">Vimeo</a><a href="#" class="u-link w-fit">Are.na</a></div>
+        <div class="flex flex-col gap-3 text-xs" style="letter-spacing:.12em"><span class="uppercase mb-2" style="letter-spacing:.32em;color:rgba(37,28,22,.5)">Studio</span><a href="#" class="u-link w-fit">Contact</a><a href="#" class="u-link w-fit">Press</a></div>
+        <div class="hidden md:flex justify-end"><span style="writing-mode:vertical-rl;font-family:'Noto Serif JP',serif;color:rgba(37,28,22,.5);letter-spacing:.4em">ありがとう</span></div>
+      </div></div>
+      <code class="ds-meta"><b>#stories.grid.grid-cols-2.md:grid-cols-4</b> · heads .32em muted · links .u-link text-xs .12em</code>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 09 feedback -->
+<section class="ds-group" id="components-feedback">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 09 · Components</p><h2>Feedback and status</h2></div><p class="ds-src">preloader · scroll cue · cursor</p></div>
+
+  <div class="ds-spec">
+    <h3>Preloader</h3>
+    <div class="ds-loaderbox"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-river-hero-plate-875acd7a5205_original.png" alt="">
+      <div id="ds-loader" class="flex flex-col items-center justify-center" style="background:var(--washi)">
+        <svg width="34" height="26" viewBox="0 0 34 26" fill="none" class="mb-5"><path d="M2 6 H32 M5 11 H29 M9 6 V25 M25 6 V25 M17 2 V6" stroke="#C4472F" stroke-width="2.2" stroke-linecap="round"></path></svg>
+        <div id="ds-loaderWord" class="text-4xl md:text-5xl tracking-tight" style="font-family:'Cormorant Garamond',serif;letter-spacing:.5em;color:var(--ink)">KOISEI</div>
+        <div class="mt-8 w-48 relative">
+          <div class="h-px w-full" style="background:rgba(37,28,22,.15)"></div>
+          <div id="ds-loaderBar" class="h-px absolute left-0 top-0 origin-left" style="background:var(--ink);width:100%;transform:scaleX(0)"></div>
+        </div>
+        <div id="ds-loaderPct" class="mt-3 text-xs" style="letter-spacing:.2em;color:rgba(37,28,22,.6)">0%</div>
+      </div></div>
+    <button class="ds-btn" type="button" data-ds-replay="loader">Replay ↻</button>
+    <code class="ds-meta"><b>#loader</b> z-[110] · % to 88 in 1.4s power2.out, 100 once the hero texture and a 1.6s minimum are done · bar turns #C4472F · clip-path inset(0 0 100% 0) .9s power4.inOut</code>
+  </div>
+
+  <div class="ds-2">
+    <div class="ds-spec">
+      <h3>Scroll cue</h3>
+      <div class="ds-box" style="height:220px"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-river-hero-plate-875acd7a5205_original.png" alt="" style="object-position:50% 90%">
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3">
+          <span class="text-xs" style="letter-spacing:.32em;color:rgba(237,233,223,.8)">SCROLL</span>
+          <div class="relative w-px h-10" style="background:rgba(237,233,223,.35)"><div class="absolute left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style="background:var(--cream);animation:scrollDot 1.8s ease-in-out infinite"></div></div>
+        </div></div>
+      <code class="ds-meta"><b>#hero .heroFade.absolute.bottom-8</b> · 1 × 40 px line · dot scrollDot 1.8s</code>
+    </div>
+    <div class="ds-spec">
+      <h3>Custom cursor</h3>
+      <div class="ds-cursorbox ds-washi" id="ds-cursorbox"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/asakusa-lantern-water-plate-73b3e135a98d_original.png" alt="" style="width:50%;left:50%">
+        <div class="relative h-full flex items-center justify-center gap-10 px-8"><a href="#journey" class="u-link text-xs" style="letter-spacing:.12em;color:var(--ink)">Journey</a><a href="#visit" class="text-xs rounded-full px-5 py-2.5" style="border:1px solid rgba(37,28,22,.4);letter-spacing:.08em;color:var(--ink);background:var(--washi)">Lorem</a></div>
+        <div id="ds-curDot" class="ds-cur top-0 left-0 w-2 h-2 rounded-full pointer-events-none hidden md:block" style="z-index:100;background:var(--ink);mix-blend-mode:difference;background:#fff"></div>
+        <div id="ds-curRing" class="ds-cur top-0 left-0 w-8 h-8 rounded-full pointer-events-none hidden md:flex items-center justify-center text-xs" style="z-index:100;border:1px solid #fff;mix-blend-mode:difference;color:#fff;transition:width .3s,height .3s"></div>
+      </div>
+      <code class="ds-meta"><b>#curDot</b> 8 px · <b>#curRing</b> 32 → 56 px over links (lerp .15) · #fff difference · body cursor none on fine pointers (desktop)</code>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 10 cards -->
+<section class="ds-group" id="components-cards">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 10 · Components</p><h2>Cards and containers</h2></div><p class="ds-src">station card · default | active</p></div>
+  <div class="ds-spec">
+    <h3>Station card</h3>
+    <div class="ds-box ds-washi"><div class="ds-cardrow">
+      <article class="galCard shrink-0 relative" style="width:min(66vw,900px)">
+        <span class="galNum absolute -top-10 -left-3 md:-left-6 z-10 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,9vw,9rem);line-height:1;-webkit-text-stroke:1px var(--ink);color:transparent;transition:color .5s">01</span>
+        <div class="relative h-[46vh] md:h-[54vh] overflow-hidden rounded" style="max-height:420px"><div class="absolute -inset-[10px] border pointer-events-none z-10 rounded" style="border-color:rgba(37,28,22,.15)"></div>
+          <img class="galImg w-full h-full object-cover will-change-transform" style="transform:scale(1.15)" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kyoto-temple-canal-plate-60699d609a45_original.png" decoding="async" alt="Higashiyama Canal">
+        </div>
+        <h3 class="mt-6 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,3rem);font-weight:500">Lorem Ipsum</h3>
+        <p class="mt-1 text-sm" style="color:rgba(37,28,22,.65)">Lorem ipsum, dolor sit, amet elit.</p>
+        <a href="#visit" class="u-link inline-flex items-center gap-2 mt-3 text-xs" style="letter-spacing:.12em">Lorem ipsum <iconify-icon icon="solar:arrow-right-linear" width="14" stroke-width="1.5"></iconify-icon></a>
+      </article>
+      <article class="galCard shrink-0 relative" style="width:min(66vw,900px)">
+        <span class="galNum absolute -top-10 -left-3 md:-left-6 z-10 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,9vw,9rem);line-height:1;-webkit-text-stroke:1px var(--ink);color:#251C16;transition:color .5s">02</span>
+        <div class="relative h-[46vh] md:h-[54vh] overflow-hidden rounded" style="max-height:420px"><div class="absolute -inset-[10px] border pointer-events-none z-10 rounded" style="border-color:rgba(37,28,22,.15)"></div>
+          <img class="galImg w-full h-full object-cover will-change-transform" style="transform:scale(1.15) translateX(0%)" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/rural-kimono-lane-plate-edb1d9bf1d3d_original.png" decoding="async" alt="The Kimono Lane">
+        </div>
+        <h3 class="mt-6 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,3rem);font-weight:500">Dolor Sit Amet</h3>
+        <p class="mt-1 text-sm" style="color:rgba(37,28,22,.65)">Consectetur adipiscing elit sed do eiusmod.</p>
+        <a href="#visit" class="u-link inline-flex items-center gap-2 mt-3 text-xs" style="letter-spacing:.12em">Lorem ipsum <iconify-icon icon="solar:arrow-right-linear" width="14" stroke-width="1.5"></iconify-icon></a>
+      </article>
+    </div></div>
+    <code class="ds-meta"><b>article.galCard</b> min(66vw, 900px) · <b>.galNum</b> outline → ink fill when the card's centre is within half its width of the viewport centre · <b>.galImg</b> scale(1.15) translateX(offset × 7%) · image h-[46vh] md:h-[54vh] (capped at 420 px here)</code>
+    <p class="ds-note">Left: default. Right: active (centred) state.</p>
+  </div>
+</section>
+
+<!-- ============================================================ 11 data display -->
+<section class="ds-group" id="components-data">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 11 · Components</p><h2>Data display</h2></div><p class="ds-src">counters</p></div>
+  <div class="ds-spec">
+    <h3>Stat counters</h3>
+    <div class="ds-box ds-washi ds-pad">
+      <div class="grid grid-cols-2 gap-8 max-w-2xl" id="ds-stats">
+        <div><div class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:500"><span class="counter" data-to="1200">0</span> km</div><p class="text-xs uppercase mt-1" style="letter-spacing:.32em;color:rgba(37,28,22,.55)">Lorem ipsum</p></div>
+        <div><div class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:500"><span class="counter" data-to="4">0</span> seasons</div><p class="text-xs uppercase mt-1" style="letter-spacing:.32em;color:rgba(37,28,22,.55)">Dolor sit</p></div>
+      </div>
+    </div>
+    <button class="ds-btn" type="button" data-ds-replay="count">Replay ↻</button>
+    <code class="ds-meta"><b>.counter[data-to]</b> 0 → value · 1.6s power2.out · snap 1 · toLocaleString() · once at “top 85%”</code>
+  </div>
+</section>
+
+<!-- ============================================================ 12 content groups -->
+<section class="ds-group" id="components-content">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 12 · Components</p><h2>Content groups</h2></div><p class="ds-src">hero · lede · stations · footer</p></div>
+
+  <div class="ds-spec">
+    <h3>Hero</h3>
+    <div class="ds-hero" id="ds-hero"><img class="ds-plate" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-river-hero-plate-875acd7a5205_original.png" alt="">
+      <section class="relative flex flex-col items-center justify-center" style="z-index:6">
+        <div class="relative z-10 flex flex-col items-center text-center px-6 mt-[8vh]">
+          <div class="overflow-hidden mb-6"><p class="heroLine text-xs uppercase" style="letter-spacing:.32em;color:var(--cream)">— Washi Paper, Ink Serif &amp; Drifting Petals</p></div>
+          <h1 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(4rem,11vw,11.5rem);line-height:.95;letter-spacing:-.015em;color:var(--cream);text-shadow:0 2px 40px rgba(37,28,22,.35)">
+            <span class="block overflow-hidden"><span class="heroLine block" style="font-weight:500">Koisei</span></span>
+            <span class="block overflow-hidden"><span class="heroLine block" style="font-weight:500"><em>Design</em> System</span></span>
+          </h1>
+          <div class="heroFade mt-8 h-px w-16" style="background:rgba(237,233,223,.7)"></div>
+          <p class="heroFade mt-4 text-sm" style="color:rgba(237,233,223,.85);letter-spacing:.08em">Koisei — <span style="font-family:'Noto Serif JP',serif">恋静</span></p>
+        </div>
+        <div class="heroFade absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3">
+          <span class="text-xs" style="letter-spacing:.32em;color:rgba(237,233,223,.8)">SCROLL</span>
+          <div class="relative w-px h-10" style="background:rgba(237,233,223,.35)"><div class="absolute left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style="background:var(--cream);animation:scrollDot 1.8s ease-in-out infinite"></div></div>
+        </div>
+        <div class="heroFade absolute right-6 top-1/2 -translate-y-1/2 z-10 hidden md:block" style="writing-mode:vertical-rl;font-family:'Noto Serif JP',serif;color:rgba(237,233,223,.6);letter-spacing:.4em">桜の川を下る</div>
+      </section>
+    </div>
+    <button class="ds-btn" type="button" data-ds-replay="hero">Replay entrance ↻</button>
+    <code class="ds-meta"><b>section#hero</b> h-screen · z-index 6 over canvas#gl · <b>.heroLine</b> yPercent 110, rotate 2 → 0 · 1.1s power4.out · stagger .12 · delay .35 · <b>.heroFade</b> opacity 0 → 1 · delay 1 · stagger .1 · pinned +=120% while the plate darkens (.25) and zooms (1.18)</code>
+    <p class="ds-note">Shown on the static hero plate; the live WebGL version of this ground is the Hero stage window in Backgrounds.</p>
+  </div>
+
+  <div class="ds-spec">
+    <h3>Lede</h3>
+    <div class="ds-box ds-washi ds-pad"><div class="flex justify-end">
+      <div style="max-width:34em">
+        <p class="leading-[1.7]" style="font-size:clamp(1rem,1.15vw,1.185rem);color:rgba(37,28,22,.78)">Lorem ipsum dolor sit amet — consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore. Ut enim ad minim veniam, quis nostrud exercitation, ullamco laboris nisi ut aliquip.</p>
+        <a href="#stories" class="u-link inline-flex items-center gap-2 mt-6 text-xs" style="letter-spacing:.12em">Lorem ipsum dolor sit amet <iconify-icon icon="solar:arrow-right-linear" width="16" stroke-width="1.5"></iconify-icon></a>
+      </div></div></div>
+    <code class="ds-meta"><b>#journey .flex.justify-end.mt-16 &gt; div</b> max-width 34em</code>
+  </div>
+
+  <div class="ds-spec">
+    <h3>Stations</h3>
+    <div class="ds-gal ds-box ds-washi" id="ds-gal">
+      <div class="px-6 md:px-12 w-full flex items-end justify-between pb-8 md:pb-12 pt-12">
+        <div>
+          <p class="text-xs uppercase mb-4 flex items-center gap-3" style="letter-spacing:.32em"><span class="inline-block w-1.5 h-1.5" style="background:var(--vermilion)"></span>— 02 · Dolor Sit</p>
+          <h2 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,5.5vw,6rem);line-height:1;letter-spacing:-.015em;font-weight:500">Lorem <em>ipsum</em>, dolor sit</h2>
+        </div>
+        <span class="hidden md:block text-xs" style="letter-spacing:.2em;color:rgba(37,28,22,.5)">( scroll )</span>
+      </div>
+      <div id="ds-galTrack" class="flex gap-[6vw] pl-6 md:pl-12 items-start pb-6" style="scrollbar-width:none">
+        <article class="galCard shrink-0 relative" style="width:min(66vw,900px)">
+          <span class="galNum absolute -top-10 -left-3 md:-left-6 z-10 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,9vw,9rem);line-height:1;-webkit-text-stroke:1px var(--ink);color:transparent;transition:color .5s">01</span>
+          <div class="relative h-[46vh] md:h-[54vh] overflow-hidden rounded"><div class="absolute -inset-[10px] border pointer-events-none z-10 rounded" style="border-color:rgba(37,28,22,.15)"></div>
+            <img class="galImg w-full h-full object-cover will-change-transform" style="transform:scale(1.15)" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kyoto-temple-canal-plate-60699d609a45_original.png" decoding="async" alt="Higashiyama Canal"></div>
+          <h3 class="mt-6 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,3rem);font-weight:500">Lorem Ipsum</h3>
+          <p class="mt-1 text-sm" style="color:rgba(37,28,22,.65)">Lorem ipsum, dolor sit, amet elit.</p>
+          <a href="#visit" class="u-link inline-flex items-center gap-2 mt-3 text-xs" style="letter-spacing:.12em">Lorem ipsum <iconify-icon icon="solar:arrow-right-linear" width="14" stroke-width="1.5"></iconify-icon></a>
+        </article>
+        <article class="galCard shrink-0 relative" style="width:min(66vw,900px)">
+          <span class="galNum absolute -top-10 -left-3 md:-left-6 z-10 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,9vw,9rem);line-height:1;-webkit-text-stroke:1px var(--ink);color:transparent;transition:color .5s">02</span>
+          <div class="relative h-[46vh] md:h-[54vh] overflow-hidden rounded"><div class="absolute -inset-[10px] border pointer-events-none z-10 rounded" style="border-color:rgba(37,28,22,.15)"></div>
+            <img class="galImg w-full h-full object-cover will-change-transform" style="transform:scale(1.15)" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/rural-kimono-lane-plate-edb1d9bf1d3d_original.png" decoding="async" alt="The Kimono Lane"></div>
+          <h3 class="mt-6 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,3rem);font-weight:500">Dolor Sit Amet</h3>
+          <p class="mt-1 text-sm" style="color:rgba(37,28,22,.65)">Consectetur adipiscing elit sed do eiusmod.</p>
+          <a href="#visit" class="u-link inline-flex items-center gap-2 mt-3 text-xs" style="letter-spacing:.12em">Lorem ipsum <iconify-icon icon="solar:arrow-right-linear" width="14" stroke-width="1.5"></iconify-icon></a>
+        </article>
+        <article class="galCard shrink-0 relative pr-6 md:pr-12" style="width:min(66vw,900px)">
+          <span class="galNum absolute -top-10 -left-3 md:-left-6 z-10 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,9vw,9rem);line-height:1;-webkit-text-stroke:1px var(--ink);color:transparent;transition:color .5s">03</span>
+          <div class="relative h-[46vh] md:h-[54vh] overflow-hidden rounded"><div class="absolute -inset-[10px] border pointer-events-none z-10 rounded" style="border-color:rgba(37,28,22,.15)"></div>
+            <img class="galImg w-full h-full object-cover will-change-transform" style="transform:scale(1.15)" src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/asakusa-lantern-water-plate-73b3e135a98d_original.png" decoding="async" alt="Asakusa Waterside"></div>
+          <h3 class="mt-6 tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,3rem);font-weight:500">Tempor Incididunt</h3>
+          <p class="mt-1 text-sm" style="color:rgba(37,28,22,.65)">Ut labore et dolore magna aliqua.</p>
+          <a href="#visit" class="u-link inline-flex items-center gap-2 mt-3 text-xs" style="letter-spacing:.12em">Lorem ipsum <iconify-icon icon="solar:arrow-right-linear" width="14" stroke-width="1.5"></iconify-icon></a>
+        </article>
+      </div>
+      <div class="px-6 md:px-12 w-full flex items-center gap-6 pt-8 pb-10">
+        <div class="relative flex-1 h-px" style="background:rgba(37,28,22,.15)"><div id="ds-galBar" class="absolute inset-0 origin-left" style="background:var(--ink);transform:scaleX(0)"></div></div>
+        <span id="ds-galCount" class="text-xs tabular-nums" style="letter-spacing:.2em">01 — 03</span>
+      </div>
+    </div>
+    <code class="ds-meta"><b>section#gallery</b> · desktop: pinned +=250%, #galTrack translateX(-(scrollWidth - innerWidth + 48)) · mobile: overflow-x-auto track · #galBar scaleX(progress) · #galCount 01 — 03</code>
+    <p class="ds-note">Here the track scrolls sideways (the page's own mobile mode, trackpad or shift + wheel); the bar, counter, numeral fill and image drift follow the page's onUpdate formulas.</p>
+  </div>
+
+  <div class="ds-spec">
+    <h3>Footer</h3>
+    <div class="ds-footbox" id="ds-foot">
+      <footer class="relative overflow-hidden" style="z-index:20;background:var(--washi);padding-top:16vh">
+        <div class="pointer-events-none absolute inset-0" style="background:radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(37,28,22,.03) 100%)"></div>
+        <div class="mx-auto px-6 md:px-12 relative">
+          <p class="text-xs uppercase mb-8 flex items-center gap-3" style="letter-spacing:.32em"><span class="inline-block w-1.5 h-1.5" style="background:var(--vermilion)"></span>— Lorem Ipsum Dolor</p>
+          <div class="flex flex-col md:flex-row md:items-center gap-10 md:gap-16">
+            <h2 class="tracking-tight" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,5.5vw,6rem);line-height:1.02;letter-spacing:-.015em;font-weight:500">Lorem ipsum<br>dolor <em>sit</em></h2>
+            <a href="#" class="ds-mag shrink-0 w-[120px] h-[120px] rounded-full flex flex-col items-center justify-center gap-1 will-change-transform" style="background:var(--vermilion);color:var(--washi)"><span class="text-sm" style="letter-spacing:.08em">Lorem</span><iconify-icon icon="solar:arrow-right-linear" width="18" stroke-width="1.5"></iconify-icon></a>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-10 mt-24 pb-10 relative">
+            <div class="flex flex-col gap-3 text-xs" style="letter-spacing:.12em"><span class="uppercase mb-2" style="letter-spacing:.32em;color:rgba(37,28,22,.5)">Explore</span><a href="#journey" class="u-link w-fit">Journey</a><a href="#" class="u-link w-fit">Stories</a><a href="#gallery" class="u-link w-fit">Gallery</a><a href="#" class="u-link w-fit">Visit</a></div>
+            <div class="flex flex-col gap-3 text-xs" style="letter-spacing:.12em"><span class="uppercase mb-2" style="letter-spacing:.32em;color:rgba(37,28,22,.5)">Elsewhere</span><a href="#" class="u-link w-fit">Instagram</a><a href="#" class="u-link w-fit">Vimeo</a><a href="#" class="u-link w-fit">Are.na</a></div>
+            <div class="flex flex-col gap-3 text-xs" style="letter-spacing:.12em"><span class="uppercase mb-2" style="letter-spacing:.32em;color:rgba(37,28,22,.5)">Studio</span><a href="#" class="u-link w-fit">Contact</a><a href="#" class="u-link w-fit">Press</a></div>
+            <div class="hidden md:flex justify-end"><span style="writing-mode:vertical-rl;font-family:'Noto Serif JP',serif;color:rgba(37,28,22,.5);letter-spacing:.4em">ありがとう</span></div>
+          </div>
+        </div>
+        <div class="overflow-hidden px-2 text-center">
+          <div class="ds-wordmark ds-footword tracking-tight leading-none whitespace-nowrap" style="font-family:'Cormorant Garamond',serif;font-weight:500;letter-spacing:-.015em;color:var(--ink);transform:translateY(110%)">KOISEI</div>
+        </div>
+        <div class="border-t" style="border-color:rgba(37,28,22,.12)">
+          <div class="mx-auto px-6 md:px-12 py-4 flex justify-between text-xs" style="letter-spacing:.15em;color:rgba(37,28,22,.55)"><span>© 2026 Koisei — down the spring river</span><span>Kyoto → Tokyo</span></div>
+        </div>
+      </footer>
+    </div>
+    <code class="ds-meta"><b>footer#visit</b> padding-top 16vh · CTA row h2 + #magnet · #stories columns · #wordmark rise · bottom bar border rgba(37,28,22,.12)</code>
+  </div>
+</section>
+
+<!-- ============================================================ 13 media -->
+<section class="ds-group" id="components-media">
+  <div class="ds-head"><div><p class="ds-eyebrow"><i></i>— 13 · Components</p><h2>Media</h2></div><p class="ds-src">sakura-river plates 1536 × 864 PNG · two 12 s scroll films</p></div>
+  <div class="ds-media">
+    <figure><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-river-hero-plate-875acd7a5205_original.png" alt=""><figcaption><b>Hero plate</b>sakura-river-hero-plate · WebGL hero texture</figcaption></figure>
+    <figure><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/sakura-koi-river-plate-742cc19de6b5_original.png" alt=""><figcaption><b>Koi river</b>sakura-koi-river-plate · manifesto capsule</figcaption></figure>
+    <figure><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/kyoto-temple-canal-plate-60699d609a45_original.png" alt=""><figcaption><b>Temple canal</b>kyoto-temple-canal-plate · capsule, station 01</figcaption></figure>
+    <figure><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/rural-kimono-lane-plate-edb1d9bf1d3d_original.png" alt=""><figcaption><b>Kimono lane</b>rural-kimono-lane-plate · station 02</figcaption></figure>
+    <figure><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/asakusa-lantern-water-plate-73b3e135a98d_original.png" alt=""><figcaption><b>Lantern water</b>asakusa-lantern-water-plate · station 03, dissolve “day”</figcaption></figure>
+    <figure><img src="assets/overview/assets/hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/sakura-river-2026-07-05/night-river-lantern-plate-510dc7d4315d_original.png" alt=""><figcaption><b>Night river</b>night-river-lantern-plate · dissolve “night”</figcaption></figure>
+  </div>
+  <p class="ds-note">Scroll films: <code>koi-bridge-temple-scroll-film-12s</code> and <code>kimono-asakusa-night-scroll-film-12s</code> (MP4, muted, playsinline, preload auto), live in Backgrounds. WebGL textures load from <code>tex-*.js</code> data URIs so the canvases stay untainted under file://.</p>
+</section>
+
+</main>
+</div>
+
+<script>
+/* Components behaviour — the page's own handlers, timelines and shaders, scoped to the specimens and
+   driven by this view's scroller (#ds-main) instead of the window */
+(function () {
+  var main = document.getElementById('ds-main'), side = document.getElementById('ds-side'), body = document.body;
+  var frame = document.getElementById('overview-frame');
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var MOBILE = matchMedia('(max-width: 767px)').matches;
+  var A = 'assets/overview/assets/';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
+  var clamp = function (x, a, b) { return Math.max(a == null ? 0 : a, Math.min(b == null ? 1 : b, x)); };
+  var on = function () { return body.classList.contains('is-components'); };
+  var inView = function (el) { var r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
+
+  /* sidebar follows the scroll; while the live window is on screen the scrim becomes its frame */
+  var groups = $$('.ds-group', main), links = $$('a', side), win = $('#ds-window');
+  var railFill = $('#ds-railFill'), secIdx = $('#ds-secIdx');
+  function spy() {
+    if (!on() || !groups.length) return;
+    var y = main.scrollTop + 160, cur = groups[0], ci = 0;
+    groups.forEach(function (g, i) { if (g.offsetTop <= y) { cur = g; ci = i; } });
+    links.forEach(function (a) {
+      var hit = a.getAttribute('href') === '#' + cur.id;
+      if (hit && !a.classList.contains('is-current') && innerWidth < 768) side.scrollLeft = a.offsetLeft - 12;
+      a.classList.toggle('is-current', hit);
+    });
+    body.classList.toggle('ds-scene-clear', inView(win));
+    var m = main.scrollHeight - main.clientHeight;
+    railFill.style.transform = 'scaleY(' + (m > 0 ? clamp(main.scrollTop / m) : 0) + ')';
+    secIdx.textContent = String(ci + 1).padStart(2, '0') + ' / ' + String(groups.length).padStart(2, '0');
+  }
+  window.dsSpy = spy;
+
+  /* specimens stay put: links and form submits never navigate */
+  main.addEventListener('click', function (e) { if (e.target.closest('a')) e.preventDefault(); });
+  document.addEventListener('submit', function (e) { e.preventDefault(); }, true);
+
+  /* the live stage answers the pointer through the window (the page's pointermove handler) */
+  var pq = false, px = 0, py = 0;
+  main.addEventListener('pointermove', function (e) {
+    if (!body.classList.contains('ds-scene-clear')) return;
+    px = e.clientX; py = e.clientY;
+    if (!pq) { pq = true; requestAnimationFrame(function () { pq = false; try { frame.contentWindow.postMessage({ ds: 'pointer', x: px, y: py }, '*'); } catch (err) {} }); }
+  }, { passive: true });
+
+  /* wordmark — the page's fitWordmark() against the specimen's own width */
+  function fitWords() { $$('.ds-wordmark').forEach(function (el) { el.style.fontSize = Math.max(48, (el.parentElement.clientWidth + 16) / 3.95) + 'px'; }); }
+
+  /* petal chip — the page's petalTex() */
+  $$('canvas.ds-petal').forEach(function (c) {
+    var x = c.getContext('2d'); x.translate(32, 32); x.fillStyle = '#E8B4C0';
+    x.beginPath(); x.moveTo(0, -26); x.bezierCurveTo(17, -20, 19, 4, 0, 26); x.bezierCurveTo(-19, 4, -17, -20, 0, -26); x.fill();
+    x.fillStyle = 'rgba(217,142,159,.55)';
+    x.beginPath(); x.moveTo(0, -16); x.bezierCurveTo(8, -8, 8, 8, 0, 22); x.bezierCurveTo(-5, 6, -7, -8, 0, -16); x.fill();
+  });
+
+  /* grain — the page's loop (180 × 180 random luma every 2nd frame) */
+  var grains = $$('canvas.ds-grain'), gf = 0;
+  grains.forEach(function (c) { c.width = 180; c.height = 180; });
+  (function grain() {
+    if (on() && ++gf % 2 === 0) grains.forEach(function (c) {
+      if (!inView(c)) return;
+      var x = c.getContext('2d'), d = x.createImageData(180, 180), p = d.data;
+      for (var i = 0; i < p.length; i += 4) { var v = Math.random() * 255; p[i] = p[i + 1] = p[i + 2] = v; p[i + 3] = 255; }
+      x.putImageData(d, 0, 0);
+    });
+    requestAnimationFrame(grain);
+  })();
+
+  /* sticky pins stand in for ScrollTrigger pins: progress over the track, scrub 1 */
+  function pinP(pin) {
+    var st = pin.firstElementChild, r = pin.getBoundingClientRect(), top = main.getBoundingClientRect().top + parseFloat(getComputedStyle(st).top);
+    return clamp((top - r.top) / Math.max(1, r.height - st.offsetHeight));
+  }
+
+  /* day → night dissolve — the page's renderer, shader and timeline (loaded on first Components visit) */
+  var nf = null, nfPin = $('#ds-nfPin');
+  function loadScript(src) { return new Promise(function (res, rej) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+  function loadGL() {
+    var T = window.KOISEI_TEX || {};
+    (window.THREE ? Promise.resolve() : loadScript(A + 'unpkg.com/three@0.160.0/build/three.classic.js'))
+      .then(function () { return Promise.all([T.asakusa ? 0 : loadScript(A + 'koisei.aura.build/tex-asakusa.js'), T.night ? 0 : loadScript(A + 'koisei.aura.build/tex-night.js')]); })
+      .then(initDissolve)
+      .catch(function (e) { console.warn('dissolve specimen unavailable', e); });
+  }
+  function initDissolve() {
+    var THREE = window.THREE, box = $('#ds-nightfall'), W = 1, H = 1;
+    var dRen = new THREE.WebGLRenderer({ canvas: $('#ds-dissolve'), antialias: false });
+    dRen.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    var dScene = new THREE.Scene(), dCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 10);
+    var dUni = { uA: { value: null }, uB: { value: null }, uP: { value: 0 }, uScaleA: { value: new THREE.Vector2(1, 1) }, uOffA: { value: new THREE.Vector2(0, 0) }, uScaleB: { value: new THREE.Vector2(1, 1) }, uOffB: { value: new THREE.Vector2(0, 0) } };
+    var dMat = new THREE.ShaderMaterial({ uniforms: dUni,
+      vertexShader: 'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position,1.);}',
+      fragmentShader: [
+        'uniform sampler2D uA,uB;uniform float uP;uniform vec2 uScaleA,uOffA,uScaleB,uOffB;varying vec2 vUv;',
+        'float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}',
+        'float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);',
+        '  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}',
+        'float fbm(vec2 p){float v=0.,a=.55;for(int i=0;i<4;i++){v+=a*noise(p);p*=2.1;a*=.5;}return v;}',
+        'void main(){',
+        '  float n=fbm(vUv*4.);',
+        '  float p=uP*1.3-.15;',
+        '  float m=smoothstep(p-.08,p+.08,n);',
+        '  vec3 a=texture2D(uA,vUv*uScaleA+uOffA).rgb;',
+        '  vec3 b=texture2D(uB,vUv*uScaleB+uOffB).rgb;',
+        '  gl_FragColor=vec4(mix(b,a,m),1.);',
+        '}'].join('\n') });
+    dScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), dMat));
+    var aAsp = 1, bAsp = 1;
+    function coverFit(asp, scale, off) { var pa = W / H;
+      if (pa > asp) { scale.set(1, asp / pa); off.set(0, (1 - asp / pa) / 2); } else { scale.set(pa / asp, 1); off.set((1 - pa / asp) / 2, 0); } }
+    function fit() { W = box.clientWidth || 1; H = box.clientHeight || 1; dRen.setSize(W, H); coverFit(aAsp, dUni.uScaleA.value, dUni.uOffA.value); coverFit(bAsp, dUni.uScaleB.value, dUni.uOffB.value); }
+    var loader = new THREE.TextureLoader();
+    loader.load(window.KOISEI_TEX.asakusa, function (t) { t.colorSpace = THREE.SRGBColorSpace; dUni.uA.value = t; aAsp = t.image.width / t.image.height; fit(); });
+    loader.load(window.KOISEI_TEX.night, function (t) { t.colorSpace = THREE.SRGBColorSpace; dUni.uB.value = t; bAsp = t.image.width / t.image.height; fit(); });
+    fit(); addEventListener('resize', fit);
+    nf = gsap.timeline({ paused: true });
+    nf.fromTo('#ds-dissolveWrap', { clipPath: 'inset(11% 24%)' }, { clipPath: 'inset(0% 0%)', ease: 'none', duration: 40 }, 0)
+      .fromTo('#ds-nfKicker', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 8 }, 8)
+      .fromTo('#ds-nfTitle', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 10 }, 10)
+      .to('#ds-nightfall', { backgroundColor: '#241B15', duration: 50, ease: 'none' }, 20)
+      .to(dUni.uP, { value: 1, duration: 55, ease: 'none' }, 35)
+      .to('#ds-nfKicker', { color: '#EDE9DF', duration: 30 }, 30)
+      .to('#ds-nfTitle', { color: '#EDE9DF', duration: 30 }, 30)
+      .to({}, { duration: 5 }, 95);
+    if (RM) { nf.progress(1); }
+    gsap.ticker.add(function () { if (on() && dUni.uA.value && dUni.uB.value && inView(nfPin)) dRen.render(dScene, dCam); });
+    pass();
+  }
+
+  /* scroll films — the page's setupFilm(): chapters on a scrubbed timeline, video time eased at .1 */
+  var films = [];
+  function setupFilm(pin, cfg) {
+    var sec = $('section', pin), video = $('.filmVid', sec), bar = $('.filmBar', sec), time = $('.filmTime', sec);
+    var f = { pin: pin, target: 0, cur: 0, tl: gsap.timeline({ paused: true }) };
+    cfg(f.tl, sec);
+    (function loop() {
+      if (on() && inView(pin)) {
+        f.cur += (f.target - f.cur) * .1;
+        if (video.duration) { var t = f.cur * video.duration;
+          if (Math.abs(video.currentTime - t) > .02) video.currentTime = t;
+          bar.style.transform = 'scaleX(' + f.cur + ')';
+          time.textContent = '00:' + String(Math.floor(t)).padStart(2, '0') + ' / 00:' + String(Math.floor(video.duration)).padStart(2, '0');
+        }
+      }
+      requestAnimationFrame(loop);
+    })();
+    films.push(f);
+  }
+  setupFilm($('#ds-film1Pin'), function (tl, sec) {
+    var ch = sec.querySelectorAll('.chapter'), roms = sec.querySelectorAll('.romNum');
+    [[5, 30], [38, 63], [70, 95]].forEach(function (sp, i) {
+      tl.fromTo(ch[i], { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 6 }, sp[0])
+        .to(ch[i], { autoAlpha: 0, y: -40, duration: 5 }, sp[1] - 5)
+        .to(roms[i], { color: '#C4472F', duration: 1 }, sp[0])
+        .to(roms[i], { color: 'rgba(237,233,223,.5)', duration: 1 }, sp[1]);
+    });
+    tl.to({}, { duration: 1 }, 100);
+  });
+  setupFilm($('#ds-film2Pin'), function (tl, sec) {
+    var ch = sec.querySelectorAll('.chapter'), q = sec.querySelector('.quote'), dark = sec.querySelector('.filmDark');
+    tl.fromTo(ch[0], { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 8 }, 6).to(ch[0], { autoAlpha: 0, y: -40, duration: 6 }, 34)
+      .fromTo(ch[1], { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 8 }, 44).to(ch[1], { autoAlpha: 0, y: -40, duration: 6 }, 72)
+      .to(dark, { opacity: .3, duration: 6 }, 82)
+      .fromTo(q, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 8 }, 85)
+      .to({}, { duration: 1 }, 100);
+  });
+
+  /* stations — the page's gallery onUpdate formulas on the sideways track (numerals and drift on desktop, as on the page) */
+  var track = $('#ds-galTrack');
+  function galUpdate() {
+    var max = track.scrollWidth - track.clientWidth, p = max > 0 ? clamp(track.scrollLeft / max) : 0;
+    $('#ds-galBar').style.transform = 'scaleX(' + p + ')';
+    $('#ds-galCount').textContent = String(Math.min(3, 1 + Math.floor(p * 3))).padStart(2, '0') + ' — 03';
+    if (MOBILE || RM) return;
+    var tr = track.getBoundingClientRect(), cx = tr.left + tr.width / 2;
+    $$('.galCard', track).forEach(function (card) {
+      var r = card.getBoundingClientRect(), c = r.left + r.width / 2;
+      card.querySelector('.galNum').style.color = Math.abs(c - cx) < r.width / 2 ? '#251C16' : 'transparent';
+      card.querySelector('.galImg').style.transform = 'scale(1.15) translateX(' + ((c - cx) / tr.width) * 7 + '%)';
+    });
+  }
+  track.addEventListener('scroll', galUpdate, { passive: true });
+
+  /* motion replays — the page's tweens */
+  var mani = $('#ds-mani'), mLines = $$('.mLine > span', mani), mImgs = $$('.mImg', mani);
+  function maniIn() {
+    mLines.forEach(function (el, i) { gsap.fromTo(el, { yPercent: 110, rotate: 1.5 }, { yPercent: 0, rotate: 0, duration: 1.1, ease: 'power4.out', delay: i * .09 }); });
+    mImgs.forEach(function (el) { gsap.fromTo(el, { width: 0 }, { width: 140, duration: 1.2, ease: 'power4.inOut' }); });
+  }
+  function maniOut() { gsap.killTweensOf(mLines.concat(mImgs)); gsap.set(mLines, { yPercent: 110, rotate: 1.5 }); gsap.set(mImgs, { width: 0 }); }
+  function wordIn(el) { gsap.fromTo(el, { yPercent: 110 }, { yPercent: 0, duration: 1.3, ease: 'power4.out' }); }
+  function wordOut(el) { gsap.killTweensOf(el); gsap.set(el, { yPercent: 110 }); }
+  function countIn() {
+    $$('#ds-stats .counter').forEach(function (el) {
+      var to = +el.dataset.to;
+      gsap.fromTo(el, { textContent: 0 }, { textContent: to, duration: 1.6, ease: 'power2.out', snap: { textContent: 1 },
+        onUpdate: function () { el.textContent = Math.round(this.targets()[0].textContent).toLocaleString(); } });
+    });
+  }
+  var hero = $('#ds-hero');
+  function heroIn() {
+    gsap.fromTo($$('.heroLine', hero), { yPercent: 110, rotate: 2 }, { yPercent: 0, rotate: 0, duration: 1.1, ease: 'power4.out', stagger: .12, delay: .35 });
+    gsap.fromTo($$('.heroFade', hero), { opacity: 0 }, { opacity: 1, duration: 1, delay: 1, stagger: .1 });
+  }
+  var lTok = 0;
+  function loaderIn() {
+    var L = $('#ds-loader'), bar = $('#ds-loaderBar'), pct = $('#ds-loaderPct'), prog = { v: 0 }, tok = ++lTok;
+    gsap.killTweensOf([L, '#ds-loaderWord']);
+    gsap.set(L, { clipPath: 'inset(0% 0% 0% 0%)' }); bar.style.background = 'var(--ink)';
+    var upd = function () { pct.textContent = Math.round(prog.v) + '%'; bar.style.transform = 'scaleX(' + prog.v / 100 + ')'; };
+    upd();
+    gsap.fromTo('#ds-loaderWord', { letterSpacing: '.5em' }, { letterSpacing: '.02em', duration: 1.2, ease: 'power3.out' });
+    gsap.to(prog, { v: 88, duration: 1.4, ease: 'power2.out', onUpdate: upd });
+    setTimeout(function () {
+      if (tok !== lTok) return;
+      gsap.to(prog, { v: 100, duration: .3, onUpdate: upd, onComplete: function () {
+        bar.style.background = '#C4472F';
+        gsap.to(L, { clipPath: 'inset(0% 0% 100% 0%)', duration: .9, ease: 'power4.inOut', delay: .15 });
+      } });
+    }, 1600);
+  }
+  var replays = { mani: function () { maniOut(); maniIn(); }, word: function () { var w = $('#ds-wordmark'); wordOut(w); wordIn(w); }, count: countIn, hero: heroIn, loader: loaderIn };
+  $$('[data-ds-replay]').forEach(function (b) { b.addEventListener('click', function () { replays[b.dataset.dsReplay](); }); });
+
+  /* first views: play once, or play / reverse like the page's toggleActions */
+  var words = $$('.ds-wordmark[style*="translateY"]');
+  words.forEach(function (w) { w.style.transform = ''; gsap.set(w, { yPercent: 110 }); w.parentElement._dsWord = w; });
+  if (!RM) maniOut();
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var t = e.target, below = e.boundingClientRect.top > (e.rootBounds ? e.rootBounds.top : 0);
+      if (t._dsWord || t === mani) {
+        if (e.isIntersecting && !t._dsIn) { t._dsIn = true; if (t === mani) maniIn(); else wordIn(t._dsWord); }
+        else if (!e.isIntersecting && below && t._dsIn) { t._dsIn = false; if (t === mani) maniOut(); else wordOut(t._dsWord); }
+      }
+      else if (e.isIntersecting) { io.unobserve(t); if (t.id === 'ds-stats') countIn(); else if (t === hero) heroIn(); else loaderIn(); }
+    });
+  }, { root: main, rootMargin: '0px 0px -25% 0px' });
+  words.forEach(function (w) { io.observe(w.parentElement); });
+  if (!RM) { io.observe(mani); io.observe($('#ds-stats')); io.observe(hero); io.observe($('.ds-loaderbox')); }
+  else { $$('#ds-stats .counter').forEach(function (el) { el.textContent = (+el.dataset.to).toLocaleString(); }); }
+
+  /* magnetic disc — the page's handler (desktop) */
+  if (!MOBILE) $$('#ds-magnet, .ds-mag').forEach(function (mag) {
+    mag.addEventListener('mousemove', function (e) { var r = mag.getBoundingClientRect(); gsap.to(mag, { x: (e.clientX - r.left - r.width / 2) * .3, y: (e.clientY - r.top - r.height / 2) * .3, duration: .4 }); });
+    mag.addEventListener('mouseleave', function () { gsap.to(mag, { x: 0, y: 0, duration: .8, ease: 'elastic.out(1,0.4)' }); });
+  });
+
+  /* custom cursor — the page's dot + lerped ring, inside its specimen box (desktop, fine pointer) */
+  var cb = $('#ds-cursorbox');
+  if (!MOBILE && matchMedia('(pointer:fine)').matches) {
+    var dot = $('#ds-curDot'), ring = $('#ds-curRing'), tx = cb.clientWidth / 2, ty = cb.clientHeight / 2, rx = tx, ry = ty;
+    dot.style.transform = 'translate(' + (tx - 4) + 'px,' + (ty - 4) + 'px)';
+    cb.addEventListener('pointermove', function (e) { var r = cb.getBoundingClientRect(); tx = e.clientX - r.left; ty = e.clientY - r.top; dot.style.transform = 'translate(' + (tx - 4) + 'px,' + (ty - 4) + 'px)'; });
+    gsap.ticker.add(function () { if (!on()) return; rx += (tx - rx) * .15; ry += (ty - ry) * .15; ring.style.transform = 'translate(' + (rx - 16) + 'px,' + (ry - 16) + 'px)'; });
+    $$('a,button', cb).forEach(function (el) {
+      el.addEventListener('mouseenter', function () { ring.style.width = '56px'; ring.style.height = '56px'; ring.style.marginLeft = '-12px'; ring.style.marginTop = '-12px'; });
+      el.addEventListener('mouseleave', function () { ring.style.width = '32px'; ring.style.height = '32px'; ring.style.marginLeft = '0'; ring.style.marginTop = '0'; });
+    });
+  } else cb.style.cursor = 'auto';
+
+  /* scroll-linked choreography, driven by this view's scroller */
+  var sheet = $('#ds-sheet');
+  function pass() {
+    if (!on()) return;
+    var vh = main.clientHeight, mt = main.getBoundingClientRect().top;
+    if (nf && !RM) gsap.to(nf, { progress: pinP(nfPin), duration: 1, ease: 'power3', overwrite: true });
+    if (!RM) films.forEach(function (f) { f.target = pinP(f.pin); gsap.to(f.tl, { progress: f.target, duration: 1, ease: 'power3', overwrite: true }); });
+    var sp = clamp((mt + vh * .6 - sheet.getBoundingClientRect().top) / (vh * .6));
+    sheet.style.borderTopLeftRadius = sheet.style.borderTopRightRadius = (1 - sp) * 32 + 'px';
+  }
+  var queued = false;
+  main.addEventListener('scroll', function () { spy(); if (!queued) { queued = true; requestAnimationFrame(function () { queued = false; pass(); }); } }, { passive: true });
+  addEventListener('resize', function () { fitWords(); spy(); pass(); galUpdate(); });
+
+  var built = false;
+  window.dsBuild = function () {
+    if (!built) { built = true; loadGL(); }
+    requestAnimationFrame(function () { fitWords(); galUpdate(); pass(); spy(); });
+  };
+})();
+</script>
+<script>
+/* catalog routing: Overview (default, no hash) | Components (#components, #components-<group>) */
+(function () {
+  var COMPONENTS_ENABLED = true;
+  var body = document.body, nav = document.getElementById('nav'), frame = document.getElementById('overview-frame');
+  var linkO = document.getElementById('nav-overview'), linkC = document.getElementById('nav-components'), main = document.getElementById('ds-main');
+  var BASE = nav.className, mode = 'overview', fcls = '';
+  var isComp = function (h) { return h === '#components' || h.indexOf('#components-') === 0; };
+  if (!COMPONENTS_ENABLED) { linkC.setAttribute('aria-disabled', 'true'); linkC.tabIndex = -1; }
+
+  /* Overview: the frame reports the page's own #nav classes; Components: the page's washi glass */
+  function paintNav() { nav.className = BASE + (mode === 'components' ? ' nav--scrolled' : (fcls ? ' ' + fcls : '')); }
+  function post(m) { try { frame.contentWindow.postMessage(m, '*'); } catch (e) {} }
+
+  function route() {
+    var h = location.hash;
+    if (isComp(h) && !COMPONENTS_ENABLED) { history.replaceState(null, '', location.pathname + location.search); h = ''; }
+    var comp = isComp(h);
+    mode = comp ? 'components' : 'overview';
+    body.classList.toggle('is-components', comp);
+    linkO.classList.toggle('is-active', !comp);
+    linkC.classList.toggle('is-active', comp);
+    if (comp) { linkC.setAttribute('aria-current', 'page'); linkO.removeAttribute('aria-current'); }
+    else { linkO.setAttribute('aria-current', 'page'); linkC.removeAttribute('aria-current'); }
+    post({ ds: comp ? 'bg' : 'page' });
+    paintNav();
+    if (!comp) { body.classList.remove('ds-scene-clear'); return; }
+    document.documentElement.style.setProperty('--ds-top', nav.offsetHeight + 'px');
+    if (window.dsBuild) window.dsBuild();
+    if (h === '#components') main.scrollTop = 0;
+    else { var el = document.getElementById(h.slice(1)); if (el) main.scrollTop = el.offsetTop - 28; }
+    if (window.dsSpy) window.dsSpy();
+  }
+
+  addEventListener('message', function (e) {
+    if (e.source !== frame.contentWindow || !e.data) return;
+    var d = e.data;
+    if (d.ds === 'ready') { body.classList.add('ds-overview-ready', 'ds-nav-in'); }
+    else if (d.ds === 'nav') { fcls = String(d.cls || '').split(/\s+/).filter(function (c) { return c.indexOf('nav--') === 0; }).join(' '); if (mode === 'overview') paintNav(); }
+  });
+  frame.addEventListener('load', function () { post({ ds: mode === 'components' ? 'bg' : 'page' }); });
+  setTimeout(function () { body.classList.add('ds-nav-in'); }, 9000);   /* the header never waits forever */
+  addEventListener('resize', function () {
+    if (mode === 'components') document.documentElement.style.setProperty('--ds-top', nav.offsetHeight + 'px');
+  }, { passive: true });
+
+  /* the wordmark returns to the top of the Overview; the pill goes to the page's #visit, as on the page */
+  document.getElementById('ds-home').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (mode !== 'overview') { history.pushState(null, '', location.pathname + location.search); route(); }
+    post({ ds: 'top' });
+  });
+  document.getElementById('ds-cta').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (mode !== 'overview') { history.pushState(null, '', location.pathname + location.search); route(); }
+    post({ ds: 'goto', id: 'visit' });
+  });
+
+  addEventListener('hashchange', route);
+  addEventListener('popstate', route);
+  route();
+})();
+</script>
+</body>
+</html>

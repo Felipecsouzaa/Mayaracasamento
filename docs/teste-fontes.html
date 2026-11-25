@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teste de fontes display — Mayara &amp; Lucas</title>
+<!-- Página de escolha: quatro displays serifadas gratuitas (OFL) sobre a foto do hero.
+     A escolhida vai para --wd-serif-display (só nos nomes e nos títulos gigantes). Abra por http://localhost:5178/docs/teste-fontes.html -->
+<link rel="stylesheet" href="../assets/vendor/fonts.css">
+<link rel="stylesheet" href="../assets/css/wd-tokens.css">
+<style>
+@font-face{font-family:'Bodoni Moda';font-style:normal;font-weight:400;font-display:swap;src:url(../assets/vendor/fonts/bodoni-moda-latin.woff2) format('woff2')}
+@font-face{font-family:'Bodoni Moda';font-style:italic;font-weight:400;font-display:swap;src:url(../assets/vendor/fonts/bodoni-moda-italic-latin.woff2) format('woff2')}
+@font-face{font-family:'Gilda Display';font-style:normal;font-weight:400;font-display:swap;src:url(../assets/vendor/fonts/gilda-display-latin.woff2) format('woff2')}
+@font-face{font-family:'Italiana';font-style:normal;font-weight:400;font-display:swap;src:url(../assets/vendor/fonts/italiana-latin.woff2) format('woff2')}
+*{box-sizing:border-box}
+body{margin:0;background:var(--wd-paper);color:var(--wd-ink-body);font-family:var(--wd-sans);font-weight:300;line-height:1.75}
+header{padding:48px clamp(20px,5vw,72px) 28px;max-width:1100px}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-weight:500;font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--wd-gold-text)}
+.eyebrow::before{content:'';width:22px;height:1px;background:currentColor}
+h1{margin:14px 0 8px;font-family:var(--wd-serif);font-weight:400;font-size:clamp(2rem,4vw,3rem);line-height:1.1;color:var(--wd-sea)}
+header p{margin:0;max-width:62ch}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:0 clamp(20px,5vw,72px) 64px}
+.opt{position:relative;min-height:78vh;overflow:hidden;border-radius:4px;display:flex;flex-direction:column;justify-content:space-between;padding:26px 22px;isolation:isolate}
+.opt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;z-index:-2}
+.opt::after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(251,248,243,.72),rgba(251,248,243,.3) 70%),linear-gradient(180deg,rgba(251,248,243,.2),rgba(251,248,243,.65))}
+.tag,.spec{font-family:var(--wd-sans)}
+.tag{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.68rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--wd-sea)}
+.tag b{font-weight:500;color:var(--wd-gold-text)}
+.names{margin:0;font-weight:400;line-height:.86;letter-spacing:-.02em;font-size:clamp(2.6rem,5vw,5.2rem);color:transparent;-webkit-text-stroke:1px var(--wd-sea);filter:drop-shadow(0 6px 40px rgba(30,48,72,.18))}
+.names span{display:block}
+.names .amp{color:var(--wd-champagne);-webkit-text-stroke:0;font-family:var(--wd-serif);font-style:italic;font-size:.6em;padding-left:1.6em}
+.names .l2{padding-left:.5em}
+.title{margin:0;font-weight:400;font-size:clamp(1.6rem,2.4vw,2.4rem);line-height:1.08;letter-spacing:-.01em;color:var(--wd-sea)}
+.title em{font-family:var(--wd-serif);font-style:italic;color:var(--wd-gold-text)}
+.spec{margin:10px 0 0;font-size:.78rem;line-height:1.6;color:var(--wd-sea-text)}
+.f1{font-family:'Cormorant Garamond',serif}.f1 .names,.f1 .title{font-weight:300}
+.f2{font-family:'Bodoni Moda',serif}
+.f3{font-family:'Gilda Display',serif}
+.f4{font-family:'Italiana',serif}
+.f1 .names,.f1 .title,.f2 .names,.f2 .title,.f3 .names,.f3 .title,.f4 .names,.f4 .title{font-family:inherit}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.grid{grid-template-columns:1fr}.opt{min-height:64vh}}
+</style>
+</head>
+<body>
+<header>
+  <span class="eyebrow">Teste de fontes</span>
+  <h1>Qual display assina os nomes?</h1>
+  <p>Quatro serifadas gratuitas de alto contraste, sobre a foto do hero. A escolhida entra só nos nomes e nos títulos gigantes; o restante do site segue com Cormorant Garamond (textos de abertura e itálicos) e Inter (corpo e interface).</p>
+</header>
+<main class="grid">
+  <section class="opt f1" aria-label="Opção 1: Cormorant Garamond 300">
+    <img src="../assets/img/juntos-praia-724.webp" alt="Mayara e Lucas caminham de mãos dadas na água rasa da praia" width="724" height="508">
+    <div class="tag"><span>Opção 1</span><b>Cormorant Garamond 300</b></div>
+    <p class="names" aria-label="Mayara &amp; Lucas"><span>Mayara</span><span class="amp">&amp;</span><span class="l2">Lucas</span></p>
+    <div><p class="title">Depois do sim, <em>a noite é nossa</em></p><p class="spec">Já carregada no site (0 KB a mais). Leve, clássica, a mais delicada das quatro.</p></div>
+  </section>
+  <section class="opt f2" aria-label="Opção 2: Bodoni Moda">
+    <img src="../assets/img/juntos-praia-724.webp" alt="" width="724" height="508">
+    <div class="tag"><span>Opção 2</span><b>Bodoni Moda 400</b></div>
+    <p class="names" aria-label="Mayara &amp; Lucas"><span>Mayara</span><span class="amp">&amp;</span><span class="l2">Lucas</span></p>
+    <div><p class="title">Depois do sim, <em>a noite é nossa</em></p><p class="spec">+14 KB. Didone de alto contraste, ar editorial de revista.</p></div>
+  </section>
+  <section class="opt f3" aria-label="Opção 3: Gilda Display">
+    <img src="../assets/img/juntos-praia-724.webp" alt="" width="724" height="508">
+    <div class="tag"><span>Opção 3</span><b>Gilda Display 400</b></div>
+    <p class="names" aria-label="Mayara &amp; Lucas"><span>Mayara</span><span class="amp">&amp;</span><span class="l2">Lucas</span></p>
+    <div><p class="title">Depois do sim, <em>a noite é nossa</em></p><p class="spec">+20 KB. Serifas finas e largas, elegante e romântica.</p></div>
+  </section>
+  <section class="opt f4" aria-label="Opção 4: Italiana">
+    <img src="../assets/img/juntos-praia-724.webp" alt="" width="724" height="508">
+    <div class="tag"><span>Opção 4</span><b>Italiana 400</b></div>
+    <p class="names" aria-label="Mayara &amp; Lucas"><span>Mayara</span><span class="amp">&amp;</span><span class="l2">Lucas</span></p>
+    <div><p class="title">Depois do sim, <em>a noite é nossa</em></p><p class="spec">+10 KB. Traço fino e estreito, a mais leve e vertical.</p></div>
+  </section>
+</main>
+</body>
+</html>

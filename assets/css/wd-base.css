@@ -1,0 +1,107 @@
+/* wd-base.css — reset, tipografia .wd-t-*, padrões reaproveitados e keyframes.
+   Extraído de assets/design_system.html (seções 02 · BASE, 03 · PADRÕES, 08 · MOVIMENTO REDUZIDO). */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{overflow:hidden;background:var(--wd-paper);color:var(--wd-ink);font-family:var(--wd-sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4,h5,h6,p,figure{margin:0}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+em{font-style:italic}
+::selection{background:var(--wd-blush);color:var(--wd-ink)}
+:focus-visible{outline:2px solid var(--wd-champagne);outline-offset:4px;border-radius:2px}
+.wd-sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.block{display:block}
+.overflow-hidden{overflow:hidden}
+.wd-skip{position:fixed;left:12px;top:-60px;z-index:200;background:var(--wd-ink);color:var(--wd-paper);padding:10px 16px;border-radius:var(--wd-r-pill);font-size:13px;transition:top var(--wd-dur-fast) var(--wd-ease-out)}
+.wd-skip:focus{top:12px}
+/* tipografia — classes de papel (fonte da verdade da escala) */
+.wd-t-display{color:var(--wd-heading);font-family:var(--wd-serif);font-weight:500;font-size:clamp(4rem,11vw,11.5rem);line-height:.95;letter-spacing:-.015em;text-transform:none}
+.wd-t-outline{font-family:var(--wd-serif);font-weight:400;font-size:clamp(5rem,16vw,16rem);line-height:.9;letter-spacing:-.02em;text-transform:none;-webkit-text-stroke:1px var(--wd-heading);color:transparent;transition:color var(--wd-dur-base) var(--wd-ease-out)}
+.wd-t-outline:hover,.wd-t-outline.is-filled,.wd-t-outline:focus-visible{color:var(--wd-heading);outline:none}
+.wd-t-h1{color:var(--wd-heading);font-family:var(--wd-serif);font-weight:400;font-size:clamp(2.6rem,5.6vw,6.2rem);line-height:1.08;letter-spacing:-.015em}
+.wd-t-h2{color:var(--wd-heading);font-family:var(--wd-serif);font-weight:500;font-size:clamp(2.2rem,4.4vw,4.5rem);line-height:1.02;letter-spacing:-.015em}
+.wd-t-h3{color:var(--wd-heading);font-family:var(--wd-serif);font-weight:500;font-size:clamp(1.8rem,3vw,3rem);line-height:1.1;letter-spacing:-.01em}
+.wd-t-h4{color:var(--wd-heading);font-family:var(--wd-serif);font-weight:500;font-size:clamp(1.5rem,2.2vw,2.25rem);line-height:1.15;letter-spacing:-.005em}
+.wd-t-h5{color:var(--wd-heading);font-family:var(--wd-serif);font-weight:500;font-style:italic;font-size:clamp(1.25rem,1.6vw,1.625rem);line-height:1.25;letter-spacing:0}
+.wd-t-h6{color:var(--wd-heading);font-family:var(--wd-sans);font-weight:500;font-size:clamp(.8125rem,.9vw,.9375rem);line-height:1.4;letter-spacing:.14em;text-transform:uppercase}
+.wd-t-numeral{color:var(--wd-heading);font-family:var(--wd-serif);font-weight:500;font-size:clamp(2.5rem,5vw,4.5rem);line-height:1;letter-spacing:-.01em;font-variant-numeric:lining-nums tabular-nums}
+.wd-t-body-lg{font-family:var(--wd-sans);font-weight:400;font-size:clamp(1.0625rem,1.25vw,1.25rem);line-height:1.7;letter-spacing:0}
+.wd-t-body{font-family:var(--wd-sans);font-weight:400;font-size:clamp(.9375rem,1.05vw,1.0625rem);line-height:1.7;letter-spacing:0}
+.wd-t-body-sm{font-family:var(--wd-sans);font-weight:400;font-size:.875rem;line-height:1.6;letter-spacing:0}
+.wd-t-caption{font-family:var(--wd-sans);font-weight:400;font-size:.75rem;line-height:1.5;letter-spacing:.02em}
+.wd-t-eyebrow{font-family:var(--wd-sans);font-weight:400;font-size:.75rem;line-height:1;letter-spacing:.32em;text-transform:uppercase}
+.wd-t-helper{font-family:var(--wd-sans);font-weight:400;font-size:.75rem;line-height:1.45;letter-spacing:.01em}
+.wd-t-link{font-family:var(--wd-sans);font-weight:400;font-size:.75rem;line-height:1.2;letter-spacing:.12em}
+.wd-t-button{font-family:var(--wd-sans);font-weight:500;font-size:.8125rem;line-height:1.4;letter-spacing:.08em}
+/* Koisei · sublinhado que entra pela esquerda */
+.u-link{position:relative;display:inline-flex;align-items:center;gap:8px}
+.u-link::after{content:'';position:absolute;left:0;bottom:-3px;width:100%;height:1px;background:var(--wd-champagne);transform:scaleX(0);transform-origin:left;transition:transform var(--wd-dur-fast) var(--wd-ease-out)}
+.u-link:hover::after,.u-link:focus-visible::after,.u-link.is-hover::after{transform:scaleX(1)}
+/* Elicyon · sublinhado desenhado que recua para a direita */
+.button-text-mobile{position:relative;display:inline-block;white-space:nowrap;font-family:var(--wd-sans);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;padding-bottom:4px}
+.button-text-mobile::after{content:'';position:absolute;left:0;bottom:0;width:100%;height:1px;background:currentColor;transform:scaleX(1);transform-origin:left;transition:transform var(--wd-dur-fast) var(--wd-ease-out)}
+.button-text-mobile:hover::after,.button-text-mobile:focus-visible::after,.button-text-mobile.is-hover::after{transform:scaleX(0);transform-origin:right}
+/* Koisei · numeral vazado → preenchido quando ativo */
+.galNum{font-family:var(--wd-serif);font-weight:400;line-height:1;letter-spacing:-.02em;-webkit-text-stroke:1px var(--wd-heading);color:transparent;transition:color .5s var(--wd-ease-out),-webkit-text-stroke-color .5s}
+.galNum.is-active{color:var(--wd-heading)}
+/* Koisei · linhas que sobem */
+.heroLine,.mLine>span{display:block;will-change:transform}
+/* Koisei · capsule de imagem no meio da frase */
+.mImg{display:inline-block;vertical-align:middle;overflow:hidden;border-radius:var(--wd-r-pill);height:.62em;width:0;margin:0 .12em;transform:translateY(-.06em)}
+.mImg img{height:100%;width:2.1em;max-width:none;object-fit:cover}
+/* Elicyon · letras do sign-off */
+.footer-char{display:inline-block;will-change:transform}
+/* Lando · anatomia do botão com text roll */
+.btn-w{position:relative;display:inline-flex;align-items:center;border-radius:var(--wd-r-pill);isolation:isolate;-webkit-tap-highlight-color:transparent}
+.btn-inner{position:relative;display:flex;align-items:center;gap:12px;height:100%;width:100%}
+.btn-inner-text-w{position:relative;overflow:hidden;display:flex}
+.btn-text{--text-offset:1.4em;display:inline-flex;white-space:pre;line-height:1.4}
+[split-text].btn-text{text-shadow:0 var(--text-offset) currentColor}
+.btn-text .char{display:inline-block;will-change:transform}
+.btn-icon-w{position:relative;overflow:hidden;display:grid;place-items:center;width:18px;height:18px;flex:none}
+.btn-icon-w>*{grid-area:1/1;transition:transform var(--wd-dur-base) var(--wd-ease-snap)}
+.btn-icon-w>.is-next{transform:translateX(-140%)}
+.btn-w:hover .btn-icon-w>.is-cur,.btn-w.is-hover .btn-icon-w>.is-cur{transform:translateX(140%)}
+.btn-w:hover .btn-icon-w>.is-next,.btn-w.is-hover .btn-icon-w>.is-next{transform:none}
+/* Lando · link de texto com clip */
+.text-link-w{display:inline-flex}
+.text-clip-w{overflow:hidden;display:flex}
+/* Lando · line highlight */
+[data-wd-high]>*{display:block}
+[data-wd-high] .line{display:inline-block;position:relative}
+.high-line-reveal{position:absolute;inset:0;z-index:5;background:var(--wd-champagne)}
+/* Elicyon · parallax */
+[data-parallax="wrapper"]{overflow:hidden}
+[data-parallax="inner"]{width:100%;height:100%;transform:translate3d(0,calc(var(--py,0%) + var(--pz,0%)),0) scale(1.1);will-change:transform}
+[data-parallax="inner"] img{width:100%;height:100%;object-fit:cover}
+/* Lando · marquee */
+@keyframes translateXLeft{to{transform:translateX(-100%)}}
+@keyframes translateXRight{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+[data-css-marquee-list]{display:flex;flex:none;animation:translateXLeft 30s linear infinite}
+[data-css-marquee-list="right"]{animation-name:translateXRight}
+/* Koisei · indicador de scroll */
+@keyframes scrollDot{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(34px);opacity:0}}
+/* glow e respiração */
+@keyframes wd-glow{0%,100%{text-shadow:0 0 10px rgba(184,151,90,.28),0 0 34px rgba(232,165,75,.12)}50%{text-shadow:0 0 18px rgba(184,151,90,.62),0 0 64px rgba(232,165,75,.32)}}
+@keyframes wd-halo{0%,100%{box-shadow:0 0 0 1px rgba(184,151,90,.25),0 0 18px rgba(184,151,90,.22),0 0 46px rgba(232,165,75,.10)}50%{box-shadow:0 0 0 1px rgba(184,151,90,.5),0 0 30px rgba(184,151,90,.42),0 0 80px rgba(232,165,75,.22)}}
+@keyframes wd-breathe{0%{transform:translate3d(-6%,-4%,0) scale(1)}50%{transform:translate3d(5%,3%,0) scale(1.12)}100%{transform:translate3d(-6%,-4%,0) scale(1)}}
+@keyframes wd-spin{to{transform:rotate(360deg)}}
+@keyframes wd-shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes wd-draw{0%{stroke-dashoffset:1}100%{stroke-dashoffset:0}}
+@keyframes wd-pulse{0%,100%{box-shadow:0 0 0 0 currentColor}60%{box-shadow:0 0 0 5px transparent}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .wd-rise{opacity:1;transform:none}
+  .wd-word{--fill:1}
+  .mImg{width:2.1em}
+  .wd-bg canvas,.wd-bg .wd-breath{display:none}
+  .wd-bg .wd-bgline path,.wd-goldline path{stroke-dashoffset:0!important}
+}
+
+/* ---- scroller do site (parte genérica do #ds-main do catálogo) ---- */
+[data-wd-scroller]{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(30,48,72,.25) transparent}
+[data-wd-scroller]:focus{outline:none}
+/* marcador losango do eyebrow (parte genérica de .ds-eyebrow i) */
+.wd-t-eyebrow>i{width:6px;height:6px;background:var(--wd-champagne);transform:rotate(45deg);display:inline-block;flex:none}

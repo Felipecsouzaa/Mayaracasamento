@@ -1,0 +1,11 @@
+# dependências (reinstale com npm install)
+node_modules/
+
+# capturas de revisão geradas pelos scripts de tools/dev
+tools/review/
+
+# configurações locais
+.claude/settings.local.json
+*.log
+.DS_Store
+Thumbs.db

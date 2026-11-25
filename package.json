@@ -5,7 +5,7 @@
   "scripts": {
     "img": "node tools/process-images.mjs",
     "serve": "node tools/serve.mjs",
-    "audio": "node -e \"require('child_process').execFileSync(require('ffmpeg-static'),['-y','-hide_banner','-loglevel','error','-i',process.argv[1],'-vn','-c:a','libmp3lame','-b:a','160k','-ar','44100','assets/audio/tema.mp3'],{stdio:'inherit'})\""
+    "audio": "node -e \"require('child_process').execFileSync(require('ffmpeg-static'),['-y','-hide_banner','-loglevel','error','-i',process.argv[1],'-vn','-c:a','libmp3lame','-b:a','192k','-ar','48000','assets/audio/tema.mp3'],{stdio:'inherit'})\""
   },
   "devDependencies": {
     "@fontsource/bodoni-moda": "^5.3.0",

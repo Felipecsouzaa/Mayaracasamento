@@ -251,31 +251,44 @@
 
   /* =====================================================================================================
      MÚSICA TEMA — Count on Me · Bruno Mars (assets/audio/tema.mp3)
-     O fade usa Web Audio (GainNode): no iOS Safari audio.volume é somente leitura. Reserva: audio.volume.
+     Fora do iOS a música toca pelo player NATIVO e o fade usa audio.volume: passar o <audio> pelo Web Audio
+     (createMediaElementSource) faz o navegador reamostrar com correção de relógio, e com a página ocupada
+     (WebGL, intro, scroll) isso se ouve como “desafinadas” momentâneas.
+     No iOS audio.volume é somente leitura: aí entra o Web Audio, com buffer grande (latencyHint 'playback')
+     e o fade agendado no próprio motor de áudio (não a cada quadro). O MP3 é 48 kHz, a taxa dos celulares.
      ===================================================================================================== */
   var audio = $('#wd-audio'), player = $('#wd-player');
   var TARGET = .45, ctx = null, gain = null, vol = 0, fadeTok = 0, playing = false, resumeOnShow = false, opened = false;
   var PREF = 'wd-sound';
+  var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function getPref() { try { return localStorage.getItem(PREF); } catch (e) { return null; } }
   function setPref(v) { try { localStorage.setItem(PREF, v); } catch (e) { /* modo privado: segue sem lembrar */ } }
 
-  function ensureGraph() {                       /* sempre chamado dentro de um gesto do usuário */
+  function ensureGraph() {                       /* sempre chamado dentro de um gesto do usuário; só no iOS */
     if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return; }
     var AC = window.AudioContext || window.webkitAudioContext;
-    /* por file:// o Chrome trata o áudio como de outra origem e o Web Audio sai MUDO: aí usa só audio.volume */
-    if (!AC || location.protocol === 'file:') return;
+    /* por file:// o Web Audio sai MUDO (áudio de outra origem): aí fica no player nativo */
+    if (!IOS || !AC || location.protocol === 'file:') return;
     try {
-      ctx = new AC();
+      try { ctx = new AC({ latencyHint: 'playback' }); } catch (e1) { ctx = new AC(); }
       var src = ctx.createMediaElementSource(audio);
-      gain = ctx.createGain(); gain.gain.value = 0;
+      gain = ctx.createGain(); gain.gain.value = vol;
       src.connect(gain).connect(ctx.destination);
       audio.volume = 1;
     } catch (e) { ctx = null; gain = null; }
   }
-  function setVol(v) { vol = v; if (gain) gain.gain.value = v; else audio.volume = v; }
-  /* fade com requestAnimationFrame (nunca um salto) */
+  function setVol(v) { vol = v; if (gain) { gain.gain.cancelScheduledValues(ctx.currentTime); gain.gain.setValueAtTime(v, ctx.currentTime); } else audio.volume = v; }
+  /* fade sem salto: no iOS agendado no motor de áudio; nos demais, audio.volume por requestAnimationFrame */
   function fadeTo(to, ms, done) {
     var tok = ++fadeTok, from = vol, t0 = performance.now();
+    if (gain) {
+      var now = ctx.currentTime, g = gain.gain; from = g.value;   /* parte do valor real (um fade pode interromper outro) */
+      g.cancelScheduledValues(now); g.setValueAtTime(from, now); g.linearRampToValueAtTime(to, now + ms / 1000);
+      vol = to;
+      setTimeout(function () { if (tok === fadeTok && done) done(); }, ms);
+      return;
+    }
+    if (doc.hidden) { setVol(to); if (done) done(); return; }   /* aba oculta: o rAF não roda */
     (function step(now) {
       if (tok !== fadeTok) return;
       var p = Math.min(1, (now - t0) / ms), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;

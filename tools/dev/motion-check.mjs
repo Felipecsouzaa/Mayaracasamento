@@ -42,7 +42,6 @@ try {
   await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable'); await send('Log.enable');
   if (MODE === 'rm') await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
   const url = MODE === 'rm' ? 'http://localhost:5178/index.html' : 'http://localhost:5178/tools/dev/motion.html?open=1';
-  if (process.env.NOINTRO) await send('Page.addScriptToEvaluateOnNewDocument', { source: "try{sessionStorage.setItem('wd-intro-seen','1')}catch(e){}" });
   await send('Page.navigate', { url });
   if (MODE === 'rm') {
     await sleep(2500);
@@ -58,7 +57,7 @@ try {
     console.log(JSON.stringify(out, null, 1));
   } else {
     /* espera o envelope abrir e a intro terminar de verdade (no WebGL por software ela é lenta) */
-    for (let i = 0; i < 120; i++) { const ok = await evalJS("!!(document.getElementById('abertura')||{}).classList&&document.getElementById('abertura').classList.contains('is-gone')&&window.WDI&&!WDI.running"); if (ok) break; await sleep(250); }
+    for (let i = 0; i < 120; i++) { const ok = await evalJS("!!(document.getElementById('abertura')||{}).classList&&document.getElementById('abertura').classList.contains('is-gone')"); if (ok) break; await sleep(250); }
     await sleep(1500);
     if (process.env.MC_CSS) await evalJS('(function(){var st=document.createElement("style");st.textContent=' + JSON.stringify(process.env.MC_CSS) + ';document.head.appendChild(st);return 1})()');
     await evalJS(`window.__lf=[];try{new PerformanceObserver(function(l){l.getEntries().forEach(function(e){__lf.push({d:Math.round(e.duration),t:Math.round(e.startTime),s:(e.scripts||[]).map(function(s){return (s.sourceFunctionName||'')+'@'+(s.sourceURL||'').split('/').pop()+' '+Math.round(s.duration)}).join(' | ')})})}).observe({type:'long-animation-frame'})}catch(e){new PerformanceObserver(function(l){l.getEntries().forEach(function(e){__lf.push({d:Math.round(e.duration),t:Math.round(e.startTime)})})}).observe({type:'longtask'})}

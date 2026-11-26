@@ -44,9 +44,5 @@ Regras permanentes para todas as etapas.
 - Acessibilidade: foco visível champanhe, `aria-*` nos interativos, contraste AA em todo texto informativo.
 - Testar sempre pelo servidor local (`npm run serve`, configuração `site` em `.claude/launch.json`), nunca por `file://` (as texturas WebGL quebram).
 
-## Intro
-- `assets/js/wd-intro.js` (`window.WDI`): “My Love → Mayara & Lucas” na areia, entre `wd:open` e o hero. O hero e as revelações `data-wd-start="open"` começam em `wd:intro-done`, nunca em `wd:open`.
-- Usa o MESMO renderer WebGL do hero (nunca criar outro). Plano B em SVG sem WebGL e versão DOM no movimento reduzido. Pular e Esc sempre funcionam; uma vez por sessão; “Rever a abertura” com `[data-wd-replay]`.
-
 ## Ao final de cada etapa
 Abrir no navegador, conferir o console sem erros e sem 404, testar em 390 px e em 1440 px e mostrar o resultado antes de seguir.

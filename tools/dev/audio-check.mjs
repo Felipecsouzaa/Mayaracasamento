@@ -24,7 +24,7 @@ try {
   if (IOS) { await send('Emulation.setUserAgentOverride', { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1', platform: 'iPhone' }); }
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await send('Page.enable');
-  await send('Page.addScriptToEvaluateOnNewDocument', { source: "try{sessionStorage.setItem('wd-intro-seen','1');localStorage.setItem('wd-sound','on')}catch(e){}" });
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: "try{localStorage.setItem('wd-sound','on')}catch(e){}" });
   await send('Page.navigate', { url: 'http://localhost:5178/index.html' });
   for (let i = 0; i < 40; i++) { if (await ev("!!document.querySelector('.wd-env.is-ready')")) break; await sleep(250); }
   await ev("document.getElementById('wd-openBtn').click()");

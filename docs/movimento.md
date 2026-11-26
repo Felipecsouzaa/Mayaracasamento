@@ -3,7 +3,7 @@
 Motor: `assets/js/wd-motion.js` (`window.WDM`), GSAP 3.12.5 + ScrollTrigger, scroller `#site-main`, Lenis
 (`lerp .085`, `wheelMultiplier .9`, `syncTouch false`), `lenis.on('scroll', ScrollTrigger.update)` no mesmo ticker.
 Toda animação ligada ao scroll usa ScrollTrigger com `scrub: 1.2`. `ScrollTrigger.refresh()` roda após `document.fonts.ready`,
-no `load` e a cada imagem carregada (com espera de 200 ms). Só se animam `transform`, `opacity`, `clip-path` e `filter`
+e no `load` (não a cada imagem: o refresh no meio da rolagem fazia as frases presas ao scroll piscarem; as fotos têm tamanho fixo e não mudam o layout). Só se animam `transform`, `opacity`, `clip-path` e `filter`
 (blur ≤ 8px); o `will-change` entra no início e sai no fim de cada revelação.
 
 ## API declarativa
@@ -27,7 +27,7 @@ Modificadores: `data-wd-delay`, `data-wd-stagger`, `data-wd-start` (padrão `top
 (fração do percurso de uma cena com pin), `data-wd-parallax="none"` (em `image`), `data-wd-skew`, `data-wd-thread`, `data-wd-cursor`.
 
 Coreografia por bloco: eyebrow (`chars`) → título (`lines`/`words`) → imagem/desenho → parágrafo/contagem → legenda → botões (`fade`),
-com .12s entre cada degrau, terminando em até 1.6s. Os itálicos recebem um brilho champanhe único (1.4s) depois do título.
+com .12s entre cada degrau, terminando em até 1.6s. Os itálicos recebem um brilho champanhe único (1.4s) depois do título, exceto os que já têm animação própria (o glow do “você”), para um não interromper o outro.
 
 ## Tabela por seção
 
@@ -73,7 +73,7 @@ com .12s entre cada degrau, terminando em até 1.6s. Os itálicos recebem um bri
 | `#convite` · cena 3 | “— e queremos você lá.” | `lines` + brilho no itálico + fio | `top 75%` |
 | `#convite` · cena 3 | data · abertura (`.wd-t-lead`) · “Ver o grande dia” (`.wd-btn-line`) | `chars` · `para` · `fade` | `top 85%` (clamp), delay .5 |
 | `#convite` · statement | “Pés na areia, coração no mar, dizemos sim.” | `lit` em scrub + fio; 2 orbes (ouro e mar) | `top 80%` → `center 45%` |
-| `#convite` | último bloco (statement) | profundidade na saída: opacity .35, scale .97, y −6vh | scrub 1.2, `bottom bottom` → `bottom top` |
+| `#convite` | último bloco | profundidade na saída desligada: o statement já é uma frase presa ao scroll (`lit`) e as duas se sobrepunham | — |
 | `#convite` | intervalos | pétalas (7) + respiração | em vista |
 | `#historia` · `#galeria` | fundo | `washi` | — (seções ainda vazias) |
 | `#festa` | eyebrow · título · abertura | `chars` · `lines` · `para` | `top 85%` |
@@ -115,29 +115,11 @@ Rolagem do topo ao rodapé pela roda do mouse (Lenis), um quadro a cada passo de
 `docs/gif/rolagem-1440.gif` (1440 × 900, reduzido para 720 px) e `docs/gif/rolagem-390.gif` (390 × 844).
 Nas duas capturas: console sem erros, nenhuma resposta ≥ 400 e todos os elementos `[data-wd-reveal]` visíveis ao final.
 
-## Intro “My Love → Mayara & Lucas” (`assets/js/wd-intro.js`, `window.WDI`)
 
-Entre `wd:open` (envelope) e o hero. As revelações com `data-wd-start="open"` e a entrada do hero agora esperam `wd:intro-done`.
+## Revisão anti-pisca
 
-| Tempo (s) | O que acontece |
-|---|---|
-| 0 → .45 | as metades do envelope terminam de abrir sobre a areia |
-| .3 → 1.0 · .8 → 1.6 | “My” e “Love” escritos como traço de dedo, letra a letra, da esquerda para a direita |
-| 2.0 → 2.8 | onda 1 chega da direita e para logo depois do M e do L; espuma rendada; “y” e “ove” se dissolvem; areia molhada |
-| ≈ 2.7 | brilho dourado rápido (#C9A25A, .4s) nas iniciais quando a espuma encosta |
-| 3.2 → 4.2 | refluxo com filme de água; “ayara” e “ucas” nascem no rastro, escuros de molhado, e secam em 1.2s |
-| 4.0 → 4.5 | “&” em itálico dourado com brilho suave |
-| 4.6 → 5.1 | onda 2 cobre a tela com espuma; música abaixa para 60% e volta em 2s |
-| 5.1 | passagem: o h1 real aparece exatamente sobre o canvas (Δ medido 0,00 px no M e no L) e faz FLIP para o layout do hero em 1.2s `--wd-ease-inout` |
-| 5.7 | `wd:intro-done`: o restante do hero entra (data, contagem e botões só aparecem depois que os nomes chegam) |
-| 5.1 → 6.0 | a água recua e, dentro do recuo, a areia vira o próprio plano WebGL do hero |
-
-- **Layout:** o texto é medido no DOM depois de `document.fonts.ready` (spans invisíveis com “My/Love” e “Mayara/Lucas” na mesma fonte display, `clamp(5rem,16vw,15rem)`, 22vw no mobile), e o canvas desenha cada letra nessas posições.
-- **WebGL:** um único renderer (o do hero, DPR ≤ 1.5, 1.25 no mobile). Shader pré-compilado no preloader. Máscaras RGB (R iniciais · G letras que somem · B letras que surgem) mais um mapa de ordem da escrita com o “&”. Areia procedural, baixo-relevo por emboss e água com distorção.
-- **Plano B:** sem WebGL (detectado antes de baixar o three.js), a mesma linha do tempo roda em SVG: `feDiffuseLighting` no relevo, `feTurbulence` + `feDisplacementMap` na espuma.
-- **Movimento reduzido:** sem ondas; “My Love” → crossfade .6s → “Mayara & Lucas” → hero.
-- **Controles:** “Pular” (`.wd-btn-line`, canto inferior direito) e Esc, a qualquer momento. Roda uma vez por sessão (`sessionStorage`). “Rever a abertura” no menu e no rodapé.
-- **Som da onda:** coloque `assets/audio/onda.mp3` e marque `<body data-wd-wave-sound="assets/audio/onda.mp3">` (volume .5 na onda 1, .7 na onda 2). Sem o atributo, a intro não faz nenhuma requisição de áudio.
-- **Depuração:** `?debug=1` mostra as guias do M e do L e o Δ DOM − canvas na passagem.
-- **Desempenho (GPU integrada Intel UHD, Chrome):** 57–58 fps em 1440 e 58–60 fps em 390, com p95 de 17 ms.
-- **Ferramentas:** `node tools/dev/record-intro.mjs <largura> <altura>` (com `GPU=1`) grava `docs/video/intro-*.mp4`; `node tools/dev/intro-check.mjs esc:<s>|skip:<s>|rm|svg|replay` testa os cenários.
+`node tools/dev/flicker-check.mjs <largura> <altura>` abre o convite, rola até o rodapé e acompanha a opacidade de cada `[data-wd-reveal]` quadro a quadro. Aponta textos que aparecem → somem → voltam e alvos do GSAP com `transition` CSS concorrente. Correções desta revisão:
+- o refresh do ScrollTrigger a cada foto carregada (com `invalidateOnRefresh`) zerava as frases em scrub, que voltavam em 1.2s — removidos;
+- `.wd-btn` tinha `transition` em `transform`, que brigava com a entrada e o magnético do GSAP — agora só cor, fundo e sombra;
+- o brilho dos itálicos não substitui mais o glow do “você”;
+- o recuo de saída não se aplica a blocos com animação em scrub (o statement chegava a só 82% no celular).

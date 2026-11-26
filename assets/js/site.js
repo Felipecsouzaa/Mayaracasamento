@@ -3,7 +3,6 @@
   'use strict';
   var WD = window.WD.init({ scroller: '#site-main', content: '#site-scroller', nav: '#wd-nav', lenis: { lerp: .085, wheelMultiplier: .9, syncTouch: false } });
   var WDM = window.WDM.prepare();                                   /* camada global de movimento (wd-motion.js) */
-  var WDI = window.WDI ? window.WDI.init() : null;                  /* intro “My Love” na areia (wd-intro.js) */
   var $ = WD.$, $$ = WD.$$, RM = WD.RM, doc = document, body = doc.body;
   var hasGsap = !!window.gsap;
 
@@ -171,7 +170,6 @@
   var HAS_GL = (function () { try { var c = doc.createElement('canvas'), g = c.getContext('webgl2') || c.getContext('webgl'), x = g && g.getExtension('WEBGL_lose_context'); if (x) x.loseContext(); return !!g; } catch (e) { return false; } })();   /* o contexto de teste é liberado na hora */
   var heroReady = (RM || !HAS_GL) ? Promise.resolve() :
     WD.loadScript('assets/vendor/three-r160.classic.js').then(initHeroGL)
-      .then(function () { if (WDI && GL) WDI.attachGL(GL); })     /* um único renderer: a intro usa o do hero e pré-compila o shader agora */
       .catch(function (e) { console.info('Hero sem WebGL — mantida a imagem estática.', e); });
   window.wdReady = (window.wdReady || []).concat(heroReady);
 
@@ -182,11 +180,11 @@
     hero.classList.add('wd-hero-in');                                       /* os nomes entram pelo data-wd-reveal="hero" (wd-motion) */
     if (GL) { gsap.fromTo(GL, { zoom: 1.12 }, { zoom: 1, duration: 2.4, ease: 'power2.out' }); gsap.to(GL.petMat, { opacity: .95, duration: 1.6, delay: .8 }); }
   }
-  doc.addEventListener('wd:intro-done', heroEntrance);              /* o hero começa quando a intro entrega os nomes */
+  doc.addEventListener('wd:open', heroEntrance);
 
   /* laço: WebGL só renderiza com o hero em vista; ponteiro move o preenchimento dos nomes */
   WD.onTick(function (t, dt) {
-    if (RM || !entered || !heroVisible() || (WDI && WDI.owns)) return;
+    if (RM || !entered || !heroVisible()) return;
     ptr.cx += (ptr.x - ptr.cx) * .06; ptr.cy += (ptr.y - ptr.cy) * .06;
     words.forEach(function (w) { w.style.setProperty('--px', (ptr.cx * 40).toFixed(1) + 'px'); w.style.setProperty('--py', (ptr.cy * 30).toFixed(1) + 'px'); });
     if (GL && GL.U.uTex.value) draw(t, dt);
@@ -316,8 +314,6 @@
     else { startMusic(600); setPref('on'); }
   }
   player.addEventListener('click', toggleMusic);
-  /* a intro abaixa a música na onda 2 e devolve ao volume normal em 2s */
-  window.WDMusic = { duck: function (k, ms) { if (!playing) return; fadeTo(TARGET * k, 350, function () { setTimeout(function () { if (playing) fadeTo(TARGET, ms || 2000); }, 450); }); } };
   /* atalho M (fora de campos de texto) */
   doc.addEventListener('keydown', function (e) {
     if (!opened || e.ctrlKey || e.metaKey || e.altKey || (e.key !== 'm' && e.key !== 'M')) return;
@@ -386,7 +382,8 @@
     }, RM ? 0 : 380);
     setTimeout(function () {
       env.classList.add('is-gone'); env.setAttribute('aria-hidden', 'true');
-      $('#site-main').focus({ preventScroll: true });                   /* o scroll é liberado pela intro (wd-intro.js) */
+      WD.lock(false);
+      $('#site-main').focus({ preventScroll: true });
       player.hidden = false;
       requestAnimationFrame(function () { player.classList.add('is-in'); });
     }, RM ? 50 : 1350);
@@ -400,9 +397,6 @@
      scrub; cena 2 com “juntos” atravessando a foto; cena 3 com a moldura de papel que fecha.
      ===================================================================================================== */
   var conv = $('#convite'), sc = WD.scroller;
-  /* “Rever a abertura” (menu e rodapé) */
-  $$('[data-wd-replay]').forEach(function (b) { b.addEventListener('click', function (e) { e.preventDefault(); setMenu(false); if (WDI) WDI.replay(); }); });
-
   var easeIO = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };   /* ≈ --wd-ease-inout */
   var vh = function () { return sc.clientHeight; };
 

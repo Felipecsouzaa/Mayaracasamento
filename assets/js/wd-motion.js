@@ -3,7 +3,7 @@
    Uma seção ganha movimento só com atributos; nenhuma seção escreve revelação à mão.
 
    data-wd-reveal = lines | words | chars | para | caption | image | fade | draw | count | hero | lit
-   modificadores   data-wd-delay="0.2"   data-wd-stagger="0.05"   data-wd-start="top 85%" | "open" (= evento wd:intro-done)
+   modificadores   data-wd-delay="0.2"   data-wd-stagger="0.05"   data-wd-start="top 85%" | "open" (= ao abrir o envelope, evento wd:open)
                    data-wd-scrub   data-wd-end="top 35%"   data-wd-trigger=".seletor"   data-wd-range="0.3 0.8"
                    data-wd-parallax="none" (em image)
    seções          data-wd-bg = paper | foam | washi | night | sea     data-wd-sheet (folha 32 → 0)
@@ -113,8 +113,6 @@
     return cols;
   }
   /* rola o odômetro até um novo valor (usado pela contagem regressiva a cada minuto) */
-  /* leva uma revelação direto ao estado final (a intro entrega os nomes já no lugar) */
-  M.finish = function (el) { var r = el && el._wdRec; if (!r) return; r.played = true; r.tl.progress(1); };
   M.countTo = function (el, value) {
     value = String(value);
     var cur = el.getAttribute('data-wd-value');
@@ -132,6 +130,7 @@
   function shine(el) {
     if (RM) return;
     $$('em', el).forEach(function (em) {
+      if (getComputedStyle(em).animationName !== 'none') return;          /* itálico com animação própria (glow): o brilho não a substitui */
       em.style.setProperty('--wd-em-c', getComputedStyle(em).color);
       em.classList.remove('wd-em-shine'); void em.offsetWidth; em.classList.add('wd-em-shine');
       setTimeout(function () { em.classList.remove('wd-em-shine'); }, 1500);
@@ -226,10 +225,10 @@
     if (rec.scrub && !RM) {
       var pos = rec.range ? trackRange(rec) : { start: rec.start, end: rec.end };
       rec.tl.paused(false);
-      ST.create({ trigger: rec.trigger, start: pos.start, end: pos.end, scrub: SCRUB, animation: rec.tl, invalidateOnRefresh: true });
+      ST.create({ trigger: rec.trigger, start: pos.start, end: pos.end, scrub: SCRUB, animation: rec.tl });   /* sem invalidateOnRefresh: o refresh não zera a frase (era o “pisca”) */
       rec.played = true;
     } else if (rec.start === 'open') {
-      if (M.opened) rec.play(); else doc.addEventListener('wd:intro-done', rec.play, { once: true });   /* o hero começa quando a intro termina */
+      if (M.opened) rec.play(); else doc.addEventListener('wd:open', rec.play, { once: true });
     } else {
       /* clamp(): um elemento na última dobra também revela, mesmo que "top 85%" esteja além do fim da rolagem */
       ST.create({ trigger: rec.trigger, start: 'clamp(' + rec.start + ')', end: 'bottom top', onEnter: rec.play, onEnterBack: rec.play, onLeave: rec.play });
@@ -288,6 +287,7 @@
     $$('#site-scroller > [data-wd-bg]:not(#inicio)').forEach(function (sec) {
       var kids = [].slice.call(sec.children).filter(function (k) { return !k.classList.contains('wd-bg'); });
       var last = kids[kids.length - 1]; if (!last) return;
+      if (last.matches('[data-wd-scrub]') || last.querySelector('[data-wd-scrub]')) return;   /* não briga com uma frase presa ao scroll */
       gsap.fromTo(last, { opacity: 1, scale: 1, y: 0 }, { opacity: .35, scale: .97, y: '-6vh', ease: 'none', immediateRender: false,
         scrollTrigger: { trigger: sec, start: 'bottom bottom', end: 'bottom top', scrub: SCRUB } });
     });
@@ -410,7 +410,7 @@
     gsap.registerPlugin(ST);
     ST.defaults({ scroller: WD.scroller });
     if (WD.lenis) WD.lenis.on('scroll', function (e) { ST.update(); onVelocity(e && e.velocity || 0); });
-    doc.addEventListener('wd:intro-done', function () { M.opened = true; });
+    doc.addEventListener('wd:open', function () { M.opened = true; });
     /* pétalas: só em papel e washi; na noite, cor de lanterna */
     $$('[data-wd-bg="night"] canvas[data-wd-petals], [data-wd-bg="sea"] canvas[data-wd-petals]').forEach(function (c) { c.setAttribute('data-wd-tint', 'lantern'); });
     return M;
@@ -429,7 +429,6 @@
     /* fontes carregadas: as linhas medidas com a fonte de reserva são refeitas antes do refresh */
     if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { lastW = 0; resplit(); refresh(); });
     addEventListener('load', refresh);
-    var rt = 0; $$('img').forEach(function (img) { if (!img.complete) img.addEventListener('load', function () { clearTimeout(rt); rt = setTimeout(refresh, 200); }); });
     return M;
   };
   w.WDM = M;
